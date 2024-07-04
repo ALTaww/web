@@ -1,10 +1,13 @@
 import React from 'react'
+import NewTrips from '../components/NewTrips'
+import TripSearch from '../components/TripSearch'
 
 const Home = () => {
   return (
-    <div>
-      Home page
-    </div>
+    <>
+      <TripSearch/>
+      <NewTrips/>
+    </>
   )
 }
 
