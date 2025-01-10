@@ -1,27 +1,62 @@
-import React from 'react'
-import HomeSearch from '../components/TripSearch'
+import React, { useContext, useEffect, useState } from "react";
+import TripSearch from "../components/TripSearch";
+import Trip from "../components/Trip";
+import { useLocation } from "react-router-dom";
+import Loading from "../components/Loading";
+import { getSuitableTrips } from "../http/tripApi";
+import { isDate } from "../utils/helpers";
+import { Context } from "..";
 
 const Searchresults = () => {
+  const { tripStore } = useContext(Context);
+
+  const location = useLocation();
+  const queryParams = new URLSearchParams(location.search);
+
+  const from = queryParams.get("from");
+  const to = queryParams.get("to");
+  const when = queryParams.get("when");
+
+  const isSearching = from && to && isDate(when);
+
+  tripStore.setFrom(from);
+  tripStore.setTo(to);
+  tripStore.setWhen(when);
+
+  const [suitableTrips, setSuitableTrips] = useState([]);
+  const [isLoading, setIsLoading] = useState(true);
+
+  useEffect(() => {
+    if (isSearching) {
+      (async () => {
+        try {
+          const response = await getSuitableTrips(from, to, when);
+          setSuitableTrips(response);
+        } catch (err) {
+          console.log(err);
+        }
+      })();
+    }
+    setIsLoading(false);
+  }, [from, to, when, isSearching]);
+
+  if (isLoading) {
+    return <Loading />;
+  }
+
   return (
     <>
-      <HomeSearch/>
-      <div className='container'>
-        <div className='searchresults-container'>
-          <div className='info-container'>
-            <span className='driver-name'>Имя Водителя</span>
-            <span className='free-places'>5 мест</span>
-          </div>
-          <div className='info-container'>
-            <span className='price'>500 руб.</span>
-          </div>
-          <div className='info-container driver-info'>
-            <span className='mobile'>8912-786-10-09</span>
-            <a className='vk' href='https://vk.com/altaww'>Вконтакте</a>
-          </div>
-        </div>
-      </div>
+      <TripSearch />
+      {suitableTrips.length > 0 &&
+        suitableTrips.map((trip) => <Trip key={trip.id} {...trip} />)}
+      {suitableTrips.length === 0 && !isSearching && (
+        <h2 className="center-text">Начните искать поездку</h2>
+      )}
+      {suitableTrips.length === 0 && isSearching && (
+        <h2 className="center-text">Подходящих поездок нет</h2>
+      )}
     </>
-  )
-}
+  );
+};
 
-export default Searchresults
+export default Searchresults;

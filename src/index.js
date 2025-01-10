@@ -1,16 +1,16 @@
-import React from 'react';
-import ReactDOM from 'react-dom/client';
-import './index.css';
-import App from './App';
-import { BrowserRouter } from 'react-router-dom';
+import React, { createContext, StrictMode } from "react";
+import ReactDOM from "react-dom/client";
+import "./index.css";
+import App from "./App";
+import { contextValue } from "./utils/consts";
 
-const root = ReactDOM.createRoot(document.getElementById('root'));
+export const Context = createContext(null);
+
+const root = ReactDOM.createRoot(document.getElementById("root"));
 root.render(
-  <React.StrictMode>
-    <BrowserRouter>
+  <StrictMode>
+    <Context.Provider value={contextValue}>
       <App />
-    </BrowserRouter>
-  </React.StrictMode>
+    </Context.Provider>
+  </StrictMode>
 );
-
-

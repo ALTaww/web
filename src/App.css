@@ -4,16 +4,91 @@
   padding: 0;
 }
 
-header {
+:root {
+  --primary-color: #3498db;
+  --success-color: #2ecc71;
+  --background-color: #f7f7f7;
+  --text-color: #000000;
+  --banned-color: #a51a1a;
+  --link-color: blue;
+  --hover-color: orange;
+  --error-color: #ff0015;
+  --border-color: black;
+  --hover-background-color: #e6e5e5;
+}
+
+body {
+  background-color: var(--background-color);
+  font-family: Arial, sans-serif;
+  font-size: 16px;
+  line-height: 1.5;
+  color: var(--text-color);
+}
+
+button {
+  cursor: pointer;
+}
+
+button.invisible {
+  background: transparent;
+  border: none;
+}
+
+a {
+  text-decoration: none;
+  color: var(--link-color);
+}
+
+a:hover {
+  color: var(--hover-color);
+}
+
+.d-flex {
   display: flex;
+}
+
+.text-center {
   text-align: center;
-  justify-content: space-between;
-  background-color: #f2f2f2;
+}
+
+.container {
+  max-width: 1200px;
+  margin: 0 auto;
+}
+
+.menu-dropdown {
+  cursor: pointer;
+  position: relative;
+}
+
+.menu-dropdown .submenu {
+  display: none;
+  flex-direction: column;
+  position: absolute;
+  top: auto;
+  left: 0;
+  width: 100%;
+  z-index: 2;
+}
+
+.menu-dropdown.active .submenu {
+  display: flex;
+}
+
+.submenu > * {
+  padding: 10px;
+  border-radius: 20px;
+}
+
+.submenu > *:hover {
+  background-color: var(--hover-background-color);
+}
+
+.trip-search-container {
   padding: 20px;
 }
 
 #trip-search {
-  padding: 20px;
   display: flex;
   justify-content: center;
   text-align: center;
@@ -33,19 +108,10 @@ header {
   height: 0;
 }
 
-.container {
-  display: flex;
-  justify-content: center;
-}
-
-.container > * {
-  max-width: 1320px;
-}
-
 .searchresults-container {
   min-width: 80%;
   max-width: 1200px;
-  border: 1px solid black
+  border: 1px solid black;
 }
 
 .info-container > * {
@@ -58,4 +124,51 @@ header {
   border: 0;
   color: white;
   font-size: large;
+}
+
+.verified_vk,
+.verified_admin {
+  width: 16px;
+  height: 16px;
+  margin-left: 4px;
+}
+
+.icon {
+  width: 24px;
+  height: 24px;
+  margin: 5px;
+}
+
+.icon-link {
+  display: flex;
+  align-items: center;
+  text-align: center;
+  justify-content: center;
+}
+
+.center-text {
+  text-align: center;
+}
+
+.fade {
+  transition: opacity 2s;
+  opacity: 0;
+}
+
+.link {
+  width: fit-content;
+}
+
+.link::after {
+  content: "";
+  position: relative;
+  top: 15%;
+  background-size: cover;
+  display: inline-block;
+  width: 20px;
+  height: 20px;
+}
+
+.vk-link::after {
+  background-image: url("./assets/img/vk.png");
 }

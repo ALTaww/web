@@ -1,0 +1,26 @@
+:root {
+  --popup-back: #333;
+  --popup-color: #fff;
+}
+
+.popup {
+  position: absolute;
+  z-index: 3;
+  background-color: var(--popup-back);
+  color: var(--popup-color);
+  padding: 5px;
+  border-radius: 5px;
+  box-shadow: 0 0 10px rgba(0, 0, 0, 0.2);
+  max-width: 276px;
+  pointer-events: none;
+}
+
+.popup-arrow {
+  position: absolute;
+  top: 100%;
+  left: 50%;
+  margin-left: -10px;
+  border-width: 10px;
+  border-style: solid;
+  border-color: var(--popup-back) transparent transparent transparent;
+}

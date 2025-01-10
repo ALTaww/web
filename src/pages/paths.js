@@ -1,9 +1,15 @@
 export const paths = {
-    Home: '/',
-    Profile: '/profile',
-    Booking: '/booking',
-    Searchresults: '/searchresults',
-    Login: '/login',
-    Registration: '/registration',
-
-}
+  Home: "/",
+  Profile: "/profile",
+  Booking: "/booking",
+  Searchresults: "/searchresults",
+  Login: "/login",
+  Admin: "/admin",
+  NotFound: "/not-found",
+  WhyVkId: "/why-vk-id",
+  Settings: "/settings",
+  Logout: "/logout",
+  Friends: "/friends",
+  UserTrips: "/user-trips",
+  MakeTrips: "/make-trips",
+};

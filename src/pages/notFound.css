@@ -1,0 +1,21 @@
+#not-found {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
+#not-found > div {
+  display: flex;
+  flex-direction: column;
+}
+
+.ol-container {
+  display: flex;
+  justify-content: space-around;
+  width: 100vw;
+}
+
+.ol-container > .ol {
+  max-width: calc((100% - 40px) / 2);
+  padding-left: 20px;
+}

@@ -1,0 +1,27 @@
+.friends-page {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+}
+
+.navigation {
+  display: flex;
+  gap: 12px;
+  flex-wrap: wrap;
+}
+
+.navigation > * {
+  padding: 5px;
+  background-color: aliceblue;
+  cursor: pointer;
+}
+
+.navigation > .active {
+  color: var(--hover-color);
+}
+
+.navigation > *:hover {
+  color: white;
+  background-color: var(--hover-color);
+}

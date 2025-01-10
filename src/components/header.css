@@ -1,0 +1,47 @@
+:root {
+  --header-background-color: #f2f2f2;
+}
+
+header {
+  display: flex;
+  text-align: center;
+  justify-content: space-between;
+  background-color: var(--header-background-color);
+  padding: 20px;
+}
+
+.header-menu {
+  width: 165px;
+}
+
+.header-menu .submenu {
+  background-color: var(--header-background-color);
+}
+
+.icon-link {
+  padding: 5px 15px;
+}
+
+.icon-link::before {
+  width: 24px;
+  height: 24px;
+  content: "";
+  background-size: cover;
+  margin-right: 5px;
+}
+
+.friends-link::before {
+  background-image: url("../assets/img/icons/friends.png");
+}
+
+.profile-link::before {
+  background-image: url("../assets/img/icons/profile.png");
+}
+
+.settings-link::before {
+  background-image: url("../assets/img/icons/settings.png");
+}
+
+.logout-link::before {
+  background-image: url("../assets/img/icons/logout.png");
+}
