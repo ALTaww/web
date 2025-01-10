@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useRef, useState } from "react";
 import { getAvatar, getFullName, showNotification } from "../utils/helpers";
 import {
   avatarSizes,
@@ -8,17 +8,31 @@ import {
 import UserChecks from "./UserChecks";
 import { Link } from "react-router-dom";
 import { paths } from "../pages/paths";
-import { addFriend, deleteFriend } from "../http/userApi";
+import userApi from "../http/userApi";
+import { fetchWithAbort } from "../utils/fetchWithAbort";
+import { createNewAbortController } from "../utils/createNewAbortController";
 
 const FriendsList = ({ friends = [], is_friend }) => {
   const [isFriend, setIsFriend] = useState(is_friend);
+
+  const abortControllerRef = useRef(null);
+
   const toggleFriend = async (event) => {
+    const { controller, signal } = createNewAbortController(abortControllerRef);
+    abortControllerRef.current = controller;
+
     try {
       let res = {};
       if (isFriend) {
-        res = await deleteFriend(event.target.id);
+        res = await fetchWithAbort(
+          (signal) => userApi.deleteFriend(event.target.id, signal),
+          signal
+        );
       } else {
-        res = await addFriend(event.target.id);
+        res = await fetchWithAbort(
+          (signal) => userApi.addFriend(event.target.id, signal),
+          signal
+        );
       }
       setIsFriend((prev) => !prev);
 
@@ -26,10 +40,12 @@ const FriendsList = ({ friends = [], is_friend }) => {
     } catch (err) {
       console.error(err);
       showNotification(
-        err.response.data.message,
+        err.response?.data?.message || "Error occurred",
         notificationTimeouts.normal,
         notificationStatuses.error
       );
+    } finally {
+      abortControllerRef.current = null;
     }
   };
   return (

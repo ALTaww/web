@@ -4,25 +4,38 @@ import { BrowserRouter } from "react-router-dom";
 import "./App.css";
 
 import AppRouter from "./components/AppRouter";
-import { useContext, useEffect, useState } from "react";
-import { Context } from ".";
-import { getUser, getUserId } from "./http/userApi";
+import { useEffect, useState } from "react";
 import { observer } from "mobx-react";
 import Loading from "./components/Loading";
 import { pageNames } from "./pages/pageNames";
 import userStore from "./store/userStore";
+import userApi from "./http/userApi";
+import { fetchWithAbort } from "./utils/fetchWithAbort";
 
 function App() {
   const [isLoading, setIsLoading] = useState(true);
   useEffect(() => {
+    const controller = new AbortController();
+    const { signal } = controller;
+
     (async () => {
       try {
         if (!userStore.isAuth) {
-          const userId = await getUserId();
-          const userInfo = await getUser(userId);
-          if (userInfo.id) {
-            userStore.setIsAuth(true);
-            userStore.setData(userInfo);
+          const userId = await fetchWithAbort(
+            (signal) => userApi.getUserId(signal),
+            signal
+          );
+
+          if (userId) {
+            const userInfo = await fetchWithAbort(
+              (signal) => userApi.getUser(userId, signal),
+              signal
+            );
+
+            if (userInfo?.id) {
+              userStore.setIsAuth(true);
+              userStore.setData(userInfo);
+            }
           }
         }
       } catch (err) {
@@ -31,6 +44,8 @@ function App() {
         setIsLoading(false);
       }
     })();
+
+    return () => controller.abort();
   });
 
   if (isLoading) {

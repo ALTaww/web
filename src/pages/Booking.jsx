@@ -1,13 +1,8 @@
-import React, { Suspense, useContext, useEffect, useState } from "react";
+import React, { Suspense, useEffect, useRef, useState } from "react";
 import { Link, redirect, useParams } from "react-router-dom";
 import { paths } from "./paths";
 import Trip from "../components/Trip";
-import { bookTrip, getTrip } from "../http/tripApi";
-import {
-  getAcceptedFriends,
-  getAcceptedFriendsByNameAndSurname,
-  getUser,
-} from "../http/userApi";
+
 import Loading from "../components/Loading";
 import NotFound from "./NotFound";
 import {
@@ -18,10 +13,15 @@ import {
   toggleActive,
 } from "../utils/helpers";
 import { notificationStatuses, notificationTimeouts } from "../utils/consts";
-import { Context } from "../index";
 import FriendsInput from "../components/FriendsInput";
 import { observer } from "mobx-react";
 import { autorun } from "mobx";
+import bookingStore from "../store/bookingStore";
+import userStore from "../store/userStore";
+import tripApi from "../http/tripApi";
+import userApi from "../http/userApi";
+import { fetchWithAbort } from "../utils/fetchWithAbort";
+import { createNewAbortController } from "../utils/createNewAbortController";
 
 const Booking = () => {
   const { id } = useParams();
@@ -29,20 +29,21 @@ const Booking = () => {
   const [driverInfo, setDriverInfo] = useState({});
   const [isLoading, setIsLoading] = useState(true);
 
-  const { bookingStore, userStore } = useContext(Context);
   const debounceFunc = debounce(findFriends, 1000);
   let debounceTimer = null;
 
   const [isAcceptedFriendsFetched, setIsAcceptedFriendsFetched] =
     useState(false);
 
+  const abortControllerRef = useRef(null);
+
   // Запрос друзей (1 раз при изменении кол-ва пассажиров)
   useEffect(() => {
     (async () => {
       if (!isAcceptedFriendsFetched && bookingStore.passengersNumber > 1) {
-        const acceptedFriends = await getAcceptedFriends().then(
-          (res) => res.data
-        );
+        const acceptedFriends = await userApi
+          .getAcceptedFriends()
+          .then((res) => res.data);
         console.log("acceptedFriends: ", acceptedFriends);
         bookingStore.setPassengersData(acceptedFriends);
         setIsAcceptedFriendsFetched(true);
@@ -52,12 +53,18 @@ const Booking = () => {
 
   // Запрос данных поездки и водителя
   useEffect(() => {
+    const controller = new AbortController();
+    const { signal } = controller;
+
     if (!id) {
       return <h2>Что-то пошло не так, отсутсвует id поезки</h2>;
     }
     (async () => {
       try {
-        const trip = await getTrip(id);
+        const trip = await fetchWithAbort(
+          (signal) => tripApi.getTrip(id, signal),
+          signal
+        );
         setTripInfo(trip);
 
         if (
@@ -69,7 +76,10 @@ const Booking = () => {
           bookingStore.setMaxPassengersNumber(trip.seats - trip.occupied_seats);
         }
 
-        const driver = await getUser(trip.driver_id);
+        const driver = await fetchWithAbort(
+          (signal) => userApi.getUser(trip.driver_id, signal),
+          signal
+        );
         setDriverInfo(driver);
       } catch (err) {
         console.log(err);
@@ -77,6 +87,8 @@ const Booking = () => {
         setIsLoading(false);
       }
     })();
+
+    return () => controller.abort();
   }, [id]);
 
   useEffect(() => {
@@ -104,6 +116,9 @@ const Booking = () => {
     return <NotFound />;
   }
   const bookSeat = async (event) => {
+    const { controller, signal } = createNewAbortController(abortControllerRef);
+    abortControllerRef.current = controller;
+
     try {
       event.preventDefault();
       // Запрос на сервер с уменьшением места и добавлением пассажиров
@@ -130,7 +145,10 @@ const Booking = () => {
         );
       }
 
-      const trip = await bookTrip(id, bookingStore.passengersIds);
+      const trip = await fetchWithAbort(
+        (signal) => tripApi.bookTrip(id, bookingStore.passengersIds, signal),
+        signal
+      );
       console.log(trip);
 
       showNotification(
@@ -153,15 +171,17 @@ const Booking = () => {
       if (errData.errors.length) {
         bookingStore.setErrors(errData.errors);
       }
+    } finally {
+      abortControllerRef.current = null;
     }
   };
 
   async function findFriends(search) {
     try {
       if (search) {
-        const users = await getAcceptedFriendsByNameAndSurname(search).then(
-          (res) => res.data
-        );
+        const users = await userApi
+          .getAcceptedFriendsByNameAndSurname(search)
+          .then((res) => res.data);
         console.log(users);
       }
     } catch (err) {

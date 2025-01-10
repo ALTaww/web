@@ -3,8 +3,6 @@ import { Link, useParams } from "react-router-dom";
 import { paths } from "../pages/paths";
 import axios from "axios";
 import Loading from "./Loading";
-import { getUser } from "../http/userApi";
-import { getTrip } from "../http/tripApi";
 import vk_image from "../assets/img/vk.png";
 import {
   getGrammaticalEnding,
@@ -14,6 +12,9 @@ import {
   toggleActive,
 } from "../utils/helpers";
 import { grammaticalEndings } from "../utils/consts";
+import userApi from "../http/userApi";
+import tripApi from "../http/tripApi";
+import { fetchWithAbort } from "../utils/fetchWithAbort";
 
 const Trip = (props) => {
   const {
@@ -54,6 +55,9 @@ const Trip = (props) => {
   const [isLoading, setIsLoading] = useState(true);
 
   useEffect(() => {
+    const controller = new AbortController();
+    const { signal } = controller;
+
     if (!id) {
       console.error("Вы должны передать id в компонент Trip");
       setIsLoading(false);
@@ -62,11 +66,18 @@ const Trip = (props) => {
     (async () => {
       try {
         if (!tripInfo.driver_id) {
-          const trip = await getTrip(id);
+          const trip = await fetchWithAbort(
+            (signal) => tripApi.getTrip(id, signal),
+            signal
+          );
           setTripInfo(trip);
         }
         if (!driverInfo.name) {
-          const response = await getUser(tripInfo.driver_id);
+          const response = await fetchWithAbort(
+            signal,
+            userApi.getUser(tripInfo.driver_id, signal),
+            signal
+          );
           setDriverInfo(response);
         }
       } catch (err) {
@@ -75,6 +86,8 @@ const Trip = (props) => {
         setIsLoading(false);
       }
     })();
+
+    return () => controller.abort();
   }, [id, tripInfo.driver_id, driverInfo.name]);
 
   if (isLoading) {

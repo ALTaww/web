@@ -1,14 +1,12 @@
-import React, { Suspense, useContext, useState } from "react";
-import { getAcceptedFriendsByNameAndSurname } from "../http/userApi";
+import React, { Suspense, useState } from "react";
 import UserChecks from "./UserChecks";
 import { findFriends, getAvatar, getFullName } from "../utils/helpers";
 import { avatarSizes } from "../utils/consts";
-import { Context } from "..";
 import { observer } from "mobx-react";
+import bookingStore from "../store/bookingStore";
 
 const FriendsInput = (props) => {
   const [value, setValue] = useState("");
-  const { bookingStore } = useContext(Context);
   const [isActive, setIsActive] = useState(false);
   const [showedArray, setShowedArray] = useState(bookingStore.passengersData);
   const [selectedUserId, setSelectedUserId] = useState(null);

@@ -1,17 +1,13 @@
-import React, { Suspense, useEffect, useState } from "react";
+import React, { Suspense, useEffect, useRef, useState } from "react";
 import { friendsPages } from "../utils/consts";
 import FriendsList from "../components/FriendsList";
 import SearchInput from "../components/SearchInput";
-import {
-  getAcceptedFriends,
-  getRejectedRequests,
-  getSendedRequests,
-  getSubscribers,
-  getUser,
-} from "../http/userApi";
 import Loading from "../components/Loading";
 import "./friends.css";
 import { findFriends } from "../utils/helpers";
+import userApi from "../http/userApi";
+import { fetchWithAbort } from "../utils/fetchWithAbort";
+import { createNewAbortController } from "../utils/createNewAbortController";
 
 const Friends = () => {
   const [friendsPage, setFriendsPage] = useState(friendsPages.accepted);
@@ -30,11 +26,15 @@ const Friends = () => {
 
   const [currentFriendsList, setCurrentFriendsList] = useState([]);
 
+  const abortControllerRef = useRef(null);
+
   useEffect(() => {
     (async () => {
       try {
         if (!isAcceptedFriendsFetched) {
-          const friends = await getAcceptedFriends().then((res) => res.data);
+          const friends = await userApi
+            .getAcceptedFriends()
+            .then((res) => res.data);
           setAcceptedFriends(friends);
           setCurrentFriendsList(friends);
           setIsAcceptedFriendsFetched(true);
@@ -58,7 +58,9 @@ const Friends = () => {
       setSearchQuery("");
 
       if (!isSendedFriendsFetched) {
-        const friends = await getSendedRequests().then((res) => res.data);
+        const friends = await userApi
+          .getSendedRequests()
+          .then((res) => res.data);
         setSendedFriends(friends);
         setIsSendedFriendsFetched(true);
       }
@@ -68,18 +70,26 @@ const Friends = () => {
   }
 
   async function getSubs() {
+    const { controller, signal } = createNewAbortController(abortControllerRef);
+    abortControllerRef.current = controller;
+
     try {
       setFriendsPage(friendsPages.subs);
       setCurrentFriendsList(subs);
       setSearchQuery("");
 
       if (!isSubsFetched) {
-        const subs = await getSubscribers().then((res) => res.data);
+        const subs = await fetchWithAbort(
+          (signal) => userApi.getSubscribers(signal),
+          signal
+        ).then((res) => res.data);
         setSubs(subs);
         setIsSubsFetched(true);
       }
     } catch (err) {
       console.error(err);
+    } finally {
+      abortControllerRef.current = null;
     }
   }
 
@@ -90,7 +100,9 @@ const Friends = () => {
       setSearchQuery("");
 
       if (!isRejectedFriendsFetched) {
-        const friends = await getRejectedRequests().then((res) => res.data);
+        const friends = await userApi
+          .getRejectedRequests()
+          .then((res) => res.data);
         setRejectedFriends(friends);
         setIsRejectedFriendsFetched(true);
       }

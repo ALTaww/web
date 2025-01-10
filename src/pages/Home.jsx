@@ -1,4 +1,4 @@
-import React, { useContext, useEffect } from "react";
+import React, { useEffect, useRef } from "react";
 import NewTrips from "../components/NewTrips";
 import TripSearch from "../components/TripSearch";
 import {
@@ -7,14 +7,6 @@ import {
   useNavigate,
   useParams,
 } from "react-router-dom";
-import { deleteCookie, getCookie, setCookie } from "../http/cookie";
-import {
-  createOrLoginUser,
-  getAccessToken,
-  getHttpOnlyCookie,
-  getUsers,
-} from "../http/userApi";
-import { Context } from "..";
 import {
   accessTokenOptions,
   notificationStatuses,
@@ -22,12 +14,17 @@ import {
 } from "../utils/consts";
 import { paths } from "./paths";
 import { showNotification } from "../utils/helpers";
+import userStore from "../store/userStore";
+import userApi from "../http/userApi";
+import { createNewAbortController } from "../utils/createNewAbortController";
+import { fetchWithAbort } from "../utils/fetchWithAbort";
 
 const Home = () => {
-  const { userStore } = useContext(Context);
   const location = useLocation();
   const navigate = useNavigate();
   const queryParams = new URLSearchParams(location.search);
+
+  const abortControllerRef = useRef(null);
 
   const type = queryParams.get("type");
   const code = queryParams.get("code");
@@ -39,13 +36,24 @@ const Home = () => {
   }
 
   async function createUser(code, state, device_id) {
+    const { controller, signal } = createNewAbortController(abortControllerRef);
+    abortControllerRef.current = controller;
+
     try {
-      const code_verifier = await getHttpOnlyCookie("codeVerifier");
-      const userInfo = await createOrLoginUser(
-        code,
-        state,
-        device_id,
-        code_verifier
+      const code_verifier = await fetchWithAbort(
+        (signal) => userApi.getHttpOnlyCookie("codeVerifier", signal),
+        signal
+      );
+      const userInfo = await fetchWithAbort(
+        (signal) =>
+          userApi.createOrLoginUser(
+            code,
+            state,
+            device_id,
+            code_verifier,
+            signal
+          ),
+        signal
       );
       userStore.setIsAuth(true);
       userStore.setData(userInfo);
@@ -59,6 +67,7 @@ const Home = () => {
       console.error(err.message);
     } finally {
       navigate(paths.Home, { replace: true });
+      abortControllerRef.current = null;
     }
   }
 

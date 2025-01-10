@@ -1,12 +1,10 @@
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useRef, useState } from "react";
 import SearchInput from "../../components/SearchInput";
-import {
-  getAllUserInfo,
-  getReviewById,
-  getTripById,
-} from "../../http/adminApi";
+import adminApi from "../../http/adminApi";
 import { pageNames } from "../pageNames";
 import AdminInfoPanel from "../../components/admin/AdminInfoPanel";
+import { createNewAbortController } from "../../utils/createNewAbortController";
+import { fetchWithAbort } from "../../utils/fetchWithAbort";
 
 const Admin = () => {
   const [userInputValue, setUserInputValue] = useState("");
@@ -22,7 +20,12 @@ const Admin = () => {
   const [reviewInputValue, setReviewInputValue] = useState("");
   const [reviewInfo, setReviewInfo] = useState({});
 
+  const abortControllerRef = useRef(null);
+
   async function getUserInfo() {
+    const { controller, signal } = createNewAbortController(abortControllerRef);
+    abortControllerRef.current = controller;
+
     if (!userInputValue) return;
     let commonUserInfo = {};
     let friends = {};
@@ -31,36 +34,57 @@ const Admin = () => {
     let bookedTrips = {};
     try {
       if (typeof +userInputValue === "number") {
-        commonUserInfo = await getAllUserInfo(userInputValue);
+        commonUserInfo = await fetchWithAbort(
+          (signal) => adminApi.getAllUserInfo(userInputValue, signal),
+          signal
+        );
         setUserInfo(commonUserInfo);
         console.log(commonUserInfo);
       }
     } catch (err) {
       console.error(err);
+    } finally {
+      abortControllerRef.current = null;
     }
   }
 
   async function getTripInfo() {
+    const { controller, signal } = createNewAbortController(abortControllerRef);
+    abortControllerRef.current = controller;
+
     try {
       if (typeof +tripInputValue === "number") {
-        const response = await getTripById(+tripInputValue);
+        const response = await fetchWithAbort(
+          (signal) => adminApi.getTripById(+tripInputValue, signal),
+          signal
+        );
         console.log(response);
         setTripInfo(response);
       }
     } catch (err) {
       console.error(err);
+    } finally {
+      abortControllerRef.current = null;
     }
   }
 
   async function getReviewInfo() {
+    const { controller, signal } = createNewAbortController(abortControllerRef);
+    abortControllerRef.current = controller;
+
     try {
       if (typeof +reviewInputValue === "number") {
-        const response = await getReviewById(+reviewInputValue);
+        const response = await fetchWithAbort(
+          (signal) => adminApi.getReviewById(+reviewInputValue, signal),
+          signal
+        );
         console.log(response);
         setReviewInfo(response);
       }
     } catch (err) {
       console.error(err);
+    } finally {
+      abortControllerRef.current = null;
     }
   }
 

@@ -2,26 +2,38 @@ import React, { useContext, useEffect, useState } from "react";
 import { Context } from "..";
 import { userRoles } from "../utils/consts";
 import Trip from "../components/Trip";
-import { getTripById } from "../http/adminApi";
-import { getTripsByDriverId, getTripsByUserId } from "../http/tripApi";
+import adminApi from "../http/adminApi";
+import tripApi from "../http/tripApi";
 import { Link, useNavigate } from "react-router-dom";
 import { paths } from "./paths";
 import { normilizeDateWithHourAndMins } from "../utils/helpers";
+import userStore from "../store/userStore";
+import { fetchWithAbort } from "../utils/fetchWithAbort";
 
 const UserTrips = () => {
-  const { userStore } = useContext(Context);
   const navigate = useNavigate();
   const [bookedTrips, setBookedTrips] = useState([]);
   const [tripsAsPassenger, setTripsAsPassenger] = useState([]);
   const [tripsAsDriver, setTripsAsDriver] = useState([]);
 
   useEffect(() => {
+    const controler = new AbortController();
+    const signal = controler.signal;
+
     (async () => {
-      const passengerTrips = await getTripsByUserId(userStore.data.id);
+      const passengerTrips = await fetchWithAbort(
+        (signal) => tripApi.getTripsByUserId(userStore.data.id, signal),
+        signal
+      );
       console.log(passengerTrips);
       setBookedTrips(passengerTrips);
       const bookedTripsInfo = await Promise.all(
-        passengerTrips.map((trip) => getTripById(trip.trip_id))
+        passengerTrips.map((trip) =>
+          fetchWithAbort(
+            (signal) => adminApi.getTripById(trip.trip_id, signal),
+            signal
+          )
+        )
       );
       console.log(bookedTripsInfo);
       setTripsAsPassenger(bookedTripsInfo);
@@ -30,11 +42,16 @@ const UserTrips = () => {
         userStore.data.role === userRoles.driver ||
         userStore.data.role === userRoles.admin
       ) {
-        const driverTrips = await getTripsByDriverId(userStore.data.id);
+        const driverTrips = await fetchWithAbort(
+          (signal) => tripApi.getTripsByDriverId(userStore.data.id, signal),
+          signal
+        );
         console.log(driverTrips);
         setTripsAsDriver(driverTrips);
       }
     })();
+
+    return () => controler.abort();
   }, [userStore.data.id, userStore.data.role]);
 
   return (

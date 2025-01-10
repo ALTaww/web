@@ -1,12 +1,12 @@
-import React, { useState } from "react";
+import React, { useRef, useState } from "react";
 import SearchInput from "../components/SearchInput";
-import {
-  getRoute,
-  getSettlementsByRoute,
-} from "../http/otherApi/directionsApi";
+
 import { decode } from "@googlemaps/polyline-codec";
 import { settlementTypes } from "../utils/consts";
 import ComponentHeader from "../components/ComponentHeader";
+import directionsApi from "../http/otherApi/directionsApi";
+import { createNewAbortController } from "../utils/createNewAbortController";
+import { fetchWithAbort } from "../utils/fetchWithAbort";
 
 const MakeTrips = () => {
   const [fromValue, setFromValue] = useState("");
@@ -23,6 +23,8 @@ const MakeTrips = () => {
   const [settlementsData, setSettlementsData] = useState([]);
   const selectedSettlements = new Set();
 
+  const abortControllerRef = useRef(null);
+
   function setFromData(place) {
     setFromLon(place.data.geo_lon);
     setFromLat(place.data.geo_lat);
@@ -36,18 +38,32 @@ const MakeTrips = () => {
   }
 
   async function createTrips(e) {
-    e.preventDefault();
-    const points = await getRoute([
-      [fromLon, fromLat],
-      [toLon, toLat],
-    ]);
+    const { controller, signal } = createNewAbortController(abortControllerRef);
+    abortControllerRef.current = controller;
 
-    const settlements = await getSettlementsByRoute(points.polyline);
+    e.preventDefault();
+    const points = await fetchWithAbort(
+      (signal) =>
+        directionsApi.getRoute(
+          [
+            [fromLon, fromLat],
+            [toLon, toLat],
+          ],
+          signal
+        ),
+      signal
+    );
+
+    const settlements = await fetchWithAbort(
+      (signal) => directionsApi.getSettlementsByRoute(points.polyline, signal),
+      signal
+    );
     console.log(settlements);
     setSettlementsData(settlements);
     settlements.forEach((settlement) => {
       selectedSettlements.add(`${settlement.lon},${settlement.lat}`);
     });
+    abortControllerRef.current = null;
   }
 
   async function toggleSettlement(e) {

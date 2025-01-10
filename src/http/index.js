@@ -1,8 +1,7 @@
 import axios from "axios";
-import { getCookie, setCookie } from "./cookie";
-import { getHttpOnlyCookie, refreshTokens } from "./userApi";
 import { showNotification } from "../utils/helpers";
 import { notificationStatuses, notificationTimeouts } from "../utils/consts";
+import userApi from "./userApi";
 
 const $host = axios.create({
   baseURL: process.env.REACT_APP_API_URL + "/api",
@@ -14,6 +13,7 @@ const $authHost = axios.create({
 
 $authHost.interceptors.request.use((config) => {
   config.withCredentials = true;
+  config.credentials = "include"; // Это для явного указания передачи куков
   return config;
 });
 
@@ -26,7 +26,7 @@ $authHost.interceptors.response.use(
       retryCount = 1;
 
       try {
-        await refreshTokens();
+        await userApi.refreshTokens();
         return await $authHost.request(originalRequest);
       } catch (err) {
         showNotification(
@@ -60,7 +60,7 @@ $driverHost.interceptors.response.use(
       retryCountDriver = 1;
 
       try {
-        await refreshTokens();
+        await userApi.refreshTokens();
         return await $driverHost.request(originalRequest);
       } catch (err) {
         showNotification(
@@ -102,7 +102,7 @@ $adminHost.interceptors.response.use(
       retryCountAdmin = 1;
 
       try {
-        await refreshTokens();
+        await userApi.refreshTokens();
         return await $adminHost.request(originalRequest);
       } catch (err) {
         showNotification(

@@ -1,6 +1,13 @@
 import { $host } from "..";
 
-export const getSettlements = async (query) => {
-  const { data } = await $host.get("/settlements/" + query);
-  return data;
-};
+class SuggestionsApi {
+  getSettlements = async (query, signal) => {
+    const { data } = await $host.get("/settlements/" + query, {
+      signal,
+    });
+    return data;
+  };
+}
+
+const suggestionsApi = new SuggestionsApi();
+export default suggestionsApi;

@@ -1,16 +1,15 @@
-import React, { useContext, useEffect, useRef } from "react";
+import React, { useEffect, useRef } from "react";
 import { Link } from "react-router-dom";
 import { paths } from "../pages/paths";
-import { Context } from "..";
 import { addActive, getAvatar, toggleActive } from "../utils/helpers";
 import { avatarSizes } from "../utils/consts";
 import "./header.css";
 import profileImage from "../assets/img/icons/profile.png";
 import settingsImage from "../assets/img/icons/settings.png";
 import { observer } from "mobx-react";
+import userStore from "../store/userStore";
 
 const Header = () => {
-  const { userStore } = useContext(Context);
   const menuRef = useRef(null);
 
   useEffect(() => {

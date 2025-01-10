@@ -1,16 +1,27 @@
 import { $adminHost } from ".";
 
-export const getAllUserInfo = async (userId) => {
-  const { data } = await $adminHost.get(`/user/${userId}`);
-  return data;
-};
+class AdminApi {
+  getAllUserInfo = async (userId, signal) => {
+    const { data } = await $adminHost.get(`/user/${userId}`, {
+      signal,
+    });
+    return data;
+  };
 
-export const getTripById = async (tripId) => {
-  const { data } = await $adminHost.get(`/trip/${tripId}`);
-  return data;
-};
+  getTripById = async (tripId, signal) => {
+    const { data } = await $adminHost.get(`/trip/${tripId}`, {
+      signal,
+    });
+    return data;
+  };
 
-export const getReviewById = async (reviewId) => {
-  const { data } = await $adminHost.get(`/review/${reviewId}`);
-  return data;
-};
+  getReviewById = async (reviewId, signal) => {
+    const { data } = await $adminHost.get(`/review/${reviewId}`, {
+      signal,
+    });
+    return data;
+  };
+}
+
+const adminApi = new AdminApi();
+export default adminApi;

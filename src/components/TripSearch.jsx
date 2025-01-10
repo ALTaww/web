@@ -1,15 +1,14 @@
-import React, { useContext, useState } from "react";
+import React, { useState } from "react";
 import SearchInput from "./SearchInput";
 import { useNavigate } from "react-router-dom";
 import { paths } from "../pages/paths";
 import { isDate, showNotification } from "../utils/helpers";
-import { Context } from "..";
 import { observer } from "mobx-react";
-import { getSettlements } from "../http/otherApi/suggestionsApi";
 import { notificationStatuses, notificationTimeouts } from "../utils/consts";
+import tripStore from "../store/tripStore";
+import suggestionsApi from "../http/otherApi/suggestionsApi";
 
 const TripSearch = (props) => {
-  const { tripStore } = useContext(Context);
   const [fromSuggestions, setFromSuggestions] = useState([]);
   const [toSuggestions, setToSuggestions] = useState([]);
 
@@ -50,7 +49,7 @@ const TripSearch = (props) => {
     try {
       tripStore.setFrom(e.target.value);
       if (e.target.value.length > 1) {
-        const data = await getSettlements(e.target.value);
+        const data = await suggestionsApi.getSettlements(e.target.value);
         setFromSuggestions(data);
       }
     } catch (err) {
@@ -62,7 +61,7 @@ const TripSearch = (props) => {
     try {
       tripStore.setTo(e.target.value);
       if (e.target.value.length > 1) {
-        const data = await getSettlements(e.target.value);
+        const data = await suggestionsApi.getSettlements(e.target.value);
         setToSuggestions(data);
       }
     } catch (err) {

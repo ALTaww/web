@@ -1,6 +1,5 @@
-import React, { useContext, useEffect, useState } from "react";
+import React, { useEffect, useState } from "react";
 import { Route, Routes } from "react-router-dom";
-import { Context } from "..";
 import { userRoles } from "../utils/consts";
 import {
   adminRoutes,

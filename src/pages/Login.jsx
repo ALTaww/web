@@ -2,16 +2,13 @@ import React, { useContext, useEffect } from "react";
 import * as VKID from "@vkid/sdk";
 import { Link, useNavigate } from "react-router-dom";
 import { paths } from "./paths";
-import {
-  generateVkConfig,
-  getHttpOnlyCookie,
-  setHttpOnlyCookie,
-} from "../http/userApi";
 import { Context } from "..";
 import { observer } from "mobx-react";
+import userStore from "../store/userStore";
+import userApi from "../http/userApi";
+import { fetchWithAbort } from "../utils/fetchWithAbort";
 
 const Login = () => {
-  const { userStore } = useContext(Context);
   const navigate = useNavigate();
 
   // При нажатии кнопки юзера редиректит на главную
@@ -20,15 +17,25 @@ const Login = () => {
       return;
     }
 
+    const controller = new AbortController();
+    const signal = controller.signal;
+
     (async () => {
-      const { config: vkConfig, codeVerifier } = await generateVkConfig();
+      const { config: vkConfig, codeVerifier } = await fetchWithAbort(
+        (signal) => userApi.generateVkConfig(signal),
+        signal
+      );
       VKID.Config.init({
         mode: VKID.ConfigAuthMode.InNewTab, // По умолчанию авторизация открывается в новой вкладке.
         ...vkConfig,
       });
 
       try {
-        await setHttpOnlyCookie("codeVerifier", codeVerifier, 60);
+        await fetchWithAbort(
+          (signal) =>
+            userApi.setHttpOnlyCookie("codeVerifier", codeVerifier, 60, signal),
+          signal
+        );
         // Создание экземпляра кнопки.
         const oneTap = new VKID.OneTap();
 
@@ -55,6 +62,8 @@ const Login = () => {
         console.log(err);
       }
     })();
+
+    return () => controller.abort();
   }, [userStore.isAuth]);
 
   if (userStore.isAuth) {

@@ -1,13 +1,7 @@
-import React, { useContext, useEffect, useState } from "react";
+import React, { useContext, useEffect, useRef, useState } from "react";
 import { Link, useParams } from "react-router-dom";
 import "./profile.css";
-import {
-  addFriend,
-  deleteFriend,
-  getAccessToken,
-  getFriendship,
-  getUser,
-} from "../http/userApi";
+
 import Loading from "../components/Loading";
 import {
   getAvatar,
@@ -30,23 +24,36 @@ import vk_image from "../assets/img/vk.png";
 import heart_svg from "../assets/svg/heart.svg";
 import { Context } from "..";
 import { ReactSVG } from "react-svg";
+import userStore from "../store/userStore";
+import userApi from "../http/userApi";
+import { createNewAbortController } from "../utils/createNewAbortController";
+import { fetchWithAbort } from "../utils/fetchWithAbort";
 
 const Profile = () => {
   const { id } = useParams();
   const [userData, setUserData] = useState({});
   const [isLoading, setIsLoading] = useState(true);
-  const { userStore } = useContext(Context);
 
   const [isFriend, setIsFriend] = useState(false);
   const isMyProfile = userStore.data.id === +id;
 
+  const abortControllerRef = useRef(null);
+
   useEffect(() => {
+    const { controller, signal } = createNewAbortController(abortControllerRef);
+    abortControllerRef.current = controller;
+
     const fetchUserData = async () => {
       try {
-        const response = await getUser(id);
+        const response = await fetchWithAbort(
+          (signal) => userApi.getUser(id, signal),
+          signal
+        );
         setUserData(response);
       } catch (err) {
         console.log(err);
+      } finally {
+        abortControllerRef.current = null;
       }
     };
     fetchUserData();
@@ -54,15 +61,23 @@ const Profile = () => {
 
   useEffect(() => {
     const fetchFriendship = async () => {
+      const { controller, signal } =
+        createNewAbortController(abortControllerRef);
+      abortControllerRef.current = controller;
+
       try {
         if (!isMyProfile) {
-          const response = await getFriendship(id);
+          const response = await fetchWithAbort(
+            (signal) => userApi.getFriendship(id, signal),
+            signal
+          );
           setIsFriend(response.is_friends || response.is_request_sent);
         }
       } catch (err) {
         console.log(err);
       } finally {
         setIsLoading(false);
+        abortControllerRef.current = null;
       }
     };
     fetchFriendship();
@@ -93,13 +108,22 @@ const Profile = () => {
   role = expressions[role];
 
   const toggleFriend = async () => {
+    const { controller, signal } = createNewAbortController(abortControllerRef);
+    abortControllerRef.current = controller;
+
     try {
       let res = {};
       if (isFriend) {
-        res = await deleteFriend(id);
+        res = await fetchWithAbort(
+          (signal) => userApi.deleteFriend(id, signal),
+          signal
+        );
         setIsFriend(false);
       } else {
-        res = await addFriend(id);
+        res = await fetchWithAbort(
+          (signal) => userApi.addFriend(id, signal),
+          signal
+        );
         setIsFriend(true);
       }
 
@@ -111,6 +135,8 @@ const Profile = () => {
         notificationTimeouts.normal,
         notificationStatuses.error
       );
+    } finally {
+      abortControllerRef.current = null;
     }
   };
 

@@ -3,13 +3,13 @@ import TripSearch from "../components/TripSearch";
 import Trip from "../components/Trip";
 import { useLocation } from "react-router-dom";
 import Loading from "../components/Loading";
-import { getSuitableTrips } from "../http/tripApi";
 import { isDate } from "../utils/helpers";
 import { Context } from "..";
+import tripStore from "../store/tripStore";
+import tripApi from "../http/tripApi";
+import { fetchWithAbort } from "../utils/fetchWithAbort";
 
 const Searchresults = () => {
-  const { tripStore } = useContext(Context);
-
   const location = useLocation();
   const queryParams = new URLSearchParams(location.search);
 
@@ -27,10 +27,16 @@ const Searchresults = () => {
   const [isLoading, setIsLoading] = useState(true);
 
   useEffect(() => {
+    const controler = new AbortController();
+    const signal = controler.signal;
+
     if (isSearching) {
       (async () => {
         try {
-          const response = await getSuitableTrips(from, to, when);
+          const response = await fetchWithAbort(
+            (signal) => tripApi.getSuitableTrips(from, to, when, signal),
+            signal
+          );
           setSuitableTrips(response);
         } catch (err) {
           console.log(err);
@@ -38,6 +44,7 @@ const Searchresults = () => {
       })();
     }
     setIsLoading(false);
+    return () => controler.abort();
   }, [from, to, when, isSearching]);
 
   if (isLoading) {

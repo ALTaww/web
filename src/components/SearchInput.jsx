@@ -1,19 +1,29 @@
-import React, { useState } from "react";
-import { getSettlements } from "../http/otherApi/suggestionsApi";
+import React, { useRef, useState } from "react";
 import "./searchInput.css";
 import { debounce } from "../utils/helpers";
+import suggestionsApi from "../http/otherApi/suggestionsApi";
+import { fetchWithAbort } from "../utils/fetchWithAbort";
+import { createNewAbortController } from "../utils/createNewAbortController";
 
 const SearchInput = (props) => {
   const [inputValue, setInputValue] = useState(props.value || "");
   const [suggestions, setSuggestions] = useState([]);
   const [isActive, setIsActive] = useState(false);
+  const abortControllerRef = useRef(null);
 
   const debouncedGetSettlements = debounce(async (value) => {
+    const { controller, signal } = createNewAbortController(abortControllerRef);
+    abortControllerRef.current = controller;
+
     if (!props.nosuggestions && value.length > 1) {
-      const data = await getSettlements(value);
+      const data = await fetchWithAbort(
+        (signal) => suggestionsApi.getSettlements(value, signal),
+        signal
+      );
       setSuggestions(data);
       console.log(value, data);
     }
+    abortControllerRef.current = null;
   }, 500);
 
   const handleChange = (e) => {
