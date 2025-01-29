@@ -21,6 +21,7 @@
   },
   "scripts": {
     "start": "cross-env PORT=80 react-scripts start",
+    "prebuild": "powershell -Command \"if (Test-Path .env) { if (Get-Content .env | Select-String 'SECRET') { Write-Error '.env contains SECRET!'; exit 1 } }\"",
     "build": "react-scripts build",
     "test": "react-scripts test",
     "eject": "react-scripts eject"
@@ -44,6 +45,10 @@
     ]
   },
   "devDependencies": {
-    "cross-env": "^7.0.3"
+    "@iconify/react": "^5.2.0",
+    "@types/react": "^19.0.8",
+    "@types/react-dom": "^19.0.3",
+    "cross-env": "^7.0.3",
+    "jest": "^27.5.1"
   }
 }

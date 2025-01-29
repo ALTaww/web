@@ -51,11 +51,6 @@ a:hover {
   text-align: center;
 }
 
-.container {
-  max-width: 1200px;
-  margin: 0 auto;
-}
-
 .menu-dropdown {
   cursor: pointer;
   position: relative;
@@ -84,46 +79,11 @@ a:hover {
   background-color: var(--hover-background-color);
 }
 
-.trip-search-container {
-  padding: 20px;
-}
-
-#trip-search {
-  display: flex;
-  justify-content: center;
-  text-align: center;
-}
-
-.search-input {
-  outline: none;
-  height: 50px;
-  width: 350px;
-  font-size: large;
-}
-
 .fake {
   visibility: hidden;
   outline: none;
   width: 0;
   height: 0;
-}
-
-.searchresults-container {
-  min-width: 80%;
-  max-width: 1200px;
-  border: 1px solid black;
-}
-
-.info-container > * {
-  padding: 5px;
-}
-
-.find-trip {
-  background-color: red;
-  width: 150px;
-  border: 0;
-  color: white;
-  font-size: large;
 }
 
 .verified_vk,

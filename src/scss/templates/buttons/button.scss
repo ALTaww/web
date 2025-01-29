@@ -1,0 +1,13 @@
+@import "../../variables";
+
+.btn {
+  padding: 0.5rem;
+  background: $primary-color;
+  color: $background-color;
+  border-radius: 0.25rem;
+
+  &:hover,
+  &.active {
+    background: darken($primary-color, 10%);
+  }
+}

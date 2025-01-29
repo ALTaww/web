@@ -1,0 +1,23 @@
+@import "./variables";
+
+@mixin breakpoints-max($breakpoint) {
+  @media screen and (max-width: map-get($breakpoints, $breakpoint)) {
+    @content;
+  }
+}
+
+@mixin breakpoints-min($breakpoint) {
+  @media screen and (min-width: map-get($breakpoints, $breakpoint)) {
+    @content;
+  }
+}
+
+@mixin svg-colors($color) {
+  stop,
+  path,
+  svg stop,
+  svg path {
+    stop-color: $color;
+    fill: $color;
+  }
+}

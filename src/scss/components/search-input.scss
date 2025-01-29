@@ -1,0 +1,39 @@
+@import "../variables";
+
+.search-input-container {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  width: fit-content;
+}
+
+.suggestions-wrapper {
+  position: relative;
+}
+
+.search-suggestions {
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  background-color: $background-color;
+  cursor: pointer;
+  max-height: 18rem;
+  overflow-y: auto;
+  z-index: 2;
+}
+
+.search-suggestion:hover {
+  background-color: rgb(180, 180, 180);
+}
+
+.search-suggestion.disabled {
+  background-color: white;
+  cursor: default;
+}
+
+.search-input {
+  outline: none;
+  height: 3rem;
+  font-size: large;
+}

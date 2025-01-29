@@ -1,0 +1,9 @@
+@import "./variables";
+
+%container-navigation {
+  display: flex;
+  gap: 4rem;
+  background-color: fade-out($background-color, 1-0.85);
+  border-radius: 2.75rem;
+  padding: 0.5rem;
+}

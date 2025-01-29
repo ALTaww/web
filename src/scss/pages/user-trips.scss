@@ -1,0 +1,21 @@
+@import "../variables";
+
+.user-trips-page {
+  .time-pagination {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 2rem;
+    margin-bottom: 1rem;
+
+    &-button {
+      padding: 0.5rem;
+      transition: all 0.3s ease;
+
+      &:hover,
+      &.active {
+        background: $hover-color;
+        color: $background-color;
+      }
+    }
+  }
+}

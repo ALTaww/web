@@ -1,0 +1,23 @@
+@import "../variables";
+
+.trip-search {
+  &-container {
+    padding: 1rem;
+    display: flex;
+    justify-content: center;
+    text-align: center;
+    gap: 0.5rem;
+
+    .search-input-container {
+      flex: 1 1;
+    }
+
+    .find-trip {
+      min-width: 7rem;
+      background-color: $error-color;
+      border: 0;
+      color: $background-color;
+      font-size: 1.2rem;
+    }
+  }
+}
