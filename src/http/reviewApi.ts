@@ -1,4 +1,5 @@
 import { $host, $authHost } from ".";
+import { IReviews } from "../types/database";
 
 interface ICreate {
   user_id: number;
@@ -11,7 +12,7 @@ class ReviewApi {
   create = async (
     { user_id, driver_id, text, rate }: ICreate,
     signal: AbortSignal
-  ): Promise<ICreate> => {
+  ): Promise<IReviews> => {
     const { data } = await $host.post(
       "/review",
       { user_id, driver_id, text, rate },
@@ -25,7 +26,7 @@ class ReviewApi {
   deleteRewiew = async (
     id: number | string,
     signal: AbortSignal
-  ): Promise<ICreate> => {
+  ): Promise<IReviews> => {
     const { data } = await $host.delete(`/review/${id}`, {
       signal,
     });
@@ -35,14 +36,14 @@ class ReviewApi {
   getRewiewById = async (
     id: number | string,
     signal: AbortSignal
-  ): Promise<ICreate> => {
+  ): Promise<IReviews> => {
     const { data } = await $host.get(`/review/${id}`, {
       signal,
     });
     return data;
   };
 
-  getRewiews = async (signal: AbortSignal): Promise<ICreate[]> => {
+  getRewiews = async (signal: AbortSignal): Promise<IReviews[]> => {
     const { data } = await $authHost.get("/reviews", {
       signal,
     });
@@ -52,7 +53,7 @@ class ReviewApi {
   getRewiewByUserId = async (
     id: number | string,
     signal: AbortSignal
-  ): Promise<ICreate> => {
+  ): Promise<IReviews> => {
     const { data } = await $authHost.get(`/review/user?user_id=${id}`, {
       signal,
     });
@@ -62,7 +63,7 @@ class ReviewApi {
   getRewiewByDriverId = async (
     id: number | string,
     signal: AbortSignal
-  ): Promise<ICreate> => {
+  ): Promise<IReviews> => {
     const { data } = await $host.get(`/review/user?driver_id=${id}`, {
       signal,
     });

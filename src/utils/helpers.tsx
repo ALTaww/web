@@ -1,8 +1,13 @@
+import { ChangeEvent } from "react";
 import Notification from "../components/Notification";
 import Popup from "../components/Popup";
-import { IUser } from "../types/database";
+import { IUsers } from "../types/database";
 import { notificationStatuses } from "./consts";
 import ReactDOM from "react-dom/client";
+import { INotificationStatuses, ISuggestions } from "../types/types";
+import { fetchWithAbort } from "./fetchWithAbort";
+import suggestionsApi from "../http/otherApi/suggestionsApi";
+import { createNewAbortController } from "./createNewAbortController";
 
 export function isDate(str: string) {
   const date = new Date(str);
@@ -27,14 +32,14 @@ export const normilizeDateWithHourAndMins = (date: Date | string) => {
   return date.toLocaleString("ru").slice(0, 17);
 };
 
-export const toggleActive = (event: Event) => {
+export const toggleActive = (event: ChangeEvent) => {
   event.target?.closest(".active-handler")?.classList.toggle("active");
 };
 
 export const showNotification = (
-  message: string | HTMLElement | Element,
+  message: string | React.ReactNode,
   timeout: number | null = null,
-  status = notificationStatuses.success
+  status: INotificationStatuses = notificationStatuses.success
 ) => {
   const notificationContainer = document.querySelector(
     "#notification-container"
@@ -62,7 +67,11 @@ export const showNotification = (
   }
 };
 
-export const showPopup = (event, text: string | HTMLElement) => {
+export const showPopup = (
+  event: MouseEvent | ChangeEvent,
+  text: string | HTMLElement
+) => {
+  if (!event.target) return;
   const popupElement = (
     <Popup
       text={text}
@@ -113,8 +122,8 @@ export function getFullName(name: string, surname: string) {
 
 export function findFriends(
   searchValue: string,
-  friendsData: (IUser | { name: string; surname: string })[]
-) {
+  friendsData: (IUsers | { name: string; surname: string })[]
+): (IUsers | { name: string; surname: string })[] {
   const regex = new RegExp(searchValue, "i");
   const friends = friendsData.filter(
     (user) =>
@@ -138,3 +147,29 @@ export function getGrammaticalEnding(number: number, wordsArr: string[]) {
   }
   return wordsArr[1];
 }
+
+export const debouncedGetSettlements = debounce(
+  async (
+    value: string,
+    abortControllerRef: React.RefObject<AbortController | null>
+  ) => {
+    const { controller, signal } = createNewAbortController(abortControllerRef);
+    abortControllerRef.current = controller;
+
+    if (value.length > 1) {
+      const data = await fetchWithAbort(
+        (signal) => suggestionsApi.getSettlements(value, signal),
+        signal
+      );
+      console.log(value, data);
+      abortControllerRef.current = null;
+
+      return data;
+    }
+    return [];
+  },
+  500
+) as (
+  value: string,
+  abortControllerRef: React.RefObject<AbortController | null>
+) => Promise<ISuggestions[]>;

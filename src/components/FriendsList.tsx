@@ -11,17 +11,17 @@ import { paths } from "../pages/paths";
 import userApi from "../http/userApi";
 import { fetchWithAbort } from "../utils/fetchWithAbort";
 import { createNewAbortController } from "../utils/createNewAbortController";
-import { IUser } from "../types/database";
+import { IUsers } from "../types/database";
 
 interface IComponent {
-  friends: IUser[];
+  friends: IUsers[];
   is_friend: boolean;
 }
 
 const FriendsList: FC<IComponent> = ({ friends = [], is_friend }) => {
   const [isFriend, setIsFriend] = useState(is_friend);
 
-  const abortControllerRef = useRef<AbortController | null>(null);
+  const abortControllerRef = useRef<AbortController>(null);
 
   const toggleFriend = async (event: Event) => {
     const { controller, signal } = createNewAbortController(abortControllerRef);

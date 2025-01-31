@@ -28,16 +28,17 @@ import userStore from "../store/userStore";
 import userApi from "../http/userApi";
 import { createNewAbortController } from "../utils/createNewAbortController";
 import { fetchWithAbort } from "../utils/fetchWithAbort";
+import { IUsers } from "../types/database";
 
 const Profile = () => {
   const { id } = useParams();
-  const [userData, setUserData] = useState({});
+  const [userData, setUserData] = useState<IUsers>({});
   const [isLoading, setIsLoading] = useState(true);
 
   const [isFriend, setIsFriend] = useState(false);
   const isMyProfile = userStore.data.id === +id;
 
-  const abortControllerRef = useRef(null);
+  const abortControllerRef = useRef<AbortController>(null);
 
   useEffect(() => {
     const { controller, signal } = createNewAbortController(abortControllerRef);

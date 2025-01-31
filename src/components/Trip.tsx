@@ -3,7 +3,6 @@ import { Link, useParams } from "react-router-dom";
 import { paths } from "../pages/paths";
 import axios from "axios";
 import Loading from "./Loading";
-import vk_image from "../assets/img/vk.png";
 import {
   getGrammaticalEnding,
   normilizeDateWithHourAndMins,
@@ -14,9 +13,9 @@ import tripApi from "../http/tripApi";
 import { fetchWithAbort } from "../utils/fetchWithAbort";
 import ComponentContainer from "./ComponentContainer";
 import "../css/trip.css";
-import { ITrips, IUser } from "../types/database";
+import { ITrips, IUsers } from "../types/database";
 
-interface IComponent extends IUser, ITrips {
+interface IComponent extends IUsers, ITrips {
   isBooking?: boolean;
   children?: React.ReactNode;
 }

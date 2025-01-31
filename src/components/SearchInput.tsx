@@ -1,4 +1,4 @@
-import React, { FC, useEffect, useRef, useState } from "react";
+import React, { FC, useState } from "react";
 import "../css/search-input.css";
 
 interface IComponent {

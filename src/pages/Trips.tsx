@@ -7,9 +7,10 @@ import tripApi from "../http/tripApi";
 import { useLocation } from "react-router-dom";
 import { fetchWithAbort } from "../utils/fetchWithAbort";
 import Loading from "../components/Loading";
+import { ITrips } from "../types/database";
 
 const Trips = () => {
-  const [trips, setTrips] = useState([]);
+  const [trips, setTrips] = useState<ITrips[]>([]);
   const [loading, setLoading] = useState(true);
   const [page, setPage] = useState(1);
 
@@ -22,7 +23,7 @@ const Trips = () => {
 
   useEffect(() => {}, []);
 
-  async function getSelectedTrips(signal) {
+  async function getSelectedTrips(signal: AbortSignal) {
     const trips = await tripApi.getTrips(10, true, page, signal);
     setTrips(trips);
     console.log("trips: ", trips);

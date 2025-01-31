@@ -2,7 +2,12 @@ import React, { FC, useRef, useState } from "react";
 import SearchInput from "./SearchInput";
 import { useNavigate } from "react-router-dom";
 import { paths } from "../pages/paths";
-import { debounce, isDate, showNotification } from "../utils/helpers";
+import {
+  debounce,
+  debouncedGetSettlements,
+  isDate,
+  showNotification,
+} from "../utils/helpers";
 import { observer } from "mobx-react";
 import { notificationStatuses, notificationTimeouts } from "../utils/consts";
 import tripStore from "../store/tripStore";
@@ -13,7 +18,7 @@ import "../css/trip-search.css";
 import { ISuggestions } from "../types/types";
 
 interface IComponent {
-  nosuggestions: boolean;
+  nosuggestions?: boolean;
 }
 
 const TripSearch: FC<IComponent> = ({ nosuggestions }) => {
@@ -23,22 +28,6 @@ const TripSearch: FC<IComponent> = ({ nosuggestions }) => {
   const navigate = useNavigate();
 
   const abortControllerRef = useRef<AbortController>(null);
-
-  const debouncedGetSettlements = debounce(async (value: string) => {
-    const { controller, signal } = createNewAbortController(abortControllerRef);
-    abortControllerRef.current = controller;
-
-    if (!nosuggestions && value.length > 1) {
-      const data = await fetchWithAbort(
-        (signal) => suggestionsApi.getSettlements(value, signal),
-        signal
-      );
-      console.log(value, data);
-      abortControllerRef.current = null;
-
-      return data;
-    }
-  }, 500);
 
   const searchTrip = () => {
     console.log(
@@ -71,11 +60,14 @@ const TripSearch: FC<IComponent> = ({ nosuggestions }) => {
     }
   };
 
-  const changeFromValue = async (e) => {
+  const changeFromValue = async (e: React.ChangeEvent<HTMLInputElement>) => {
     try {
       tripStore.setFrom(e.target.value);
       if (e.target.value.length > 1) {
-        const data = await debouncedGetSettlements(e.target.value);
+        const data = await debouncedGetSettlements(
+          e.target.value,
+          abortControllerRef
+        );
         console.log("data: ", data);
         setFromSuggestions(data);
       }
@@ -84,11 +76,14 @@ const TripSearch: FC<IComponent> = ({ nosuggestions }) => {
     }
   };
 
-  const changeToValue = async (e) => {
+  const changeToValue = async (e: React.ChangeEvent<HTMLInputElement>) => {
     try {
       tripStore.setTo(e.target.value);
       if (e.target.value.length > 1) {
-        const data = await debouncedGetSettlements(e.target.value);
+        const data = await debouncedGetSettlements(
+          e.target.value,
+          abortControllerRef
+        );
         console.log("data: ", data);
 
         setToSuggestions(data);

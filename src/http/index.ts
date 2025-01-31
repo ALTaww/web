@@ -1,12 +1,17 @@
-import axios from "axios";
+import axios, { AxiosInstance } from "axios";
 import { showNotification } from "../utils/helpers";
 import { notificationStatuses, notificationTimeouts } from "../utils/consts";
 import userApi from "./userApi";
 
+/**
+ * Обобщенный тип для ответа Axios, гарантирует, что поле `data` всегда есть.
+ */
+export type AxiosResponseData<T> = Promise<T>;
+
 const createAxiosInstance = (
   baseURL = process.env.REACT_APP_API_URL + "/api",
   withAuth = false
-) => {
+): AxiosInstance => {
   const instance = axios.create({ baseURL });
 
   // Перехватчик запросов
@@ -51,7 +56,7 @@ const createAxiosInstance = (
           try {
             await userApi.refreshTokens(); // Метод для обновления токенов
             return instance.request(originalRequest); // Повторяем запрос
-          } catch (err: any) {
+          } catch (err) {
             showNotification(
               err.message || "Для этой операции нужно зарегистрироваться",
               notificationTimeouts.short,

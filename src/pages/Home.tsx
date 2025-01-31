@@ -7,11 +7,7 @@ import {
   useNavigate,
   useParams,
 } from "react-router-dom";
-import {
-  accessTokenOptions,
-  notificationStatuses,
-  notificationTimeouts,
-} from "../utils/consts";
+import { notificationStatuses, notificationTimeouts } from "../utils/consts";
 import { paths } from "./paths";
 import { showNotification } from "../utils/helpers";
 import userStore from "../store/userStore";
@@ -24,14 +20,19 @@ const Home = () => {
   const navigate = useNavigate();
   const queryParams = new URLSearchParams(location.search);
 
-  const abortControllerRef = useRef(null);
+  const abortControllerRef = useRef<AbortController>(null);
 
   const type = queryParams.get("type");
   const code = queryParams.get("code");
   const state = queryParams.get("state");
   const device_id = queryParams.get("device_id");
 
-  async function createUser(code, state, device_id, signal) {
+  async function createUser(
+    code: string,
+    state: string,
+    device_id: string,
+    signal: AbortSignal
+  ) {
     try {
       const code_verifier = await fetchWithAbort(
         (signal) => userApi.getHttpOnlyCookie("codeVerifier", signal),

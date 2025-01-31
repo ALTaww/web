@@ -1,4 +1,4 @@
-import React, { useRef, useState } from "react";
+import React, { ChangeEvent, FormEvent, useRef, useState } from "react";
 import SearchInput from "../components/SearchInput";
 
 import { decode } from "@googlemaps/polyline-codec";
@@ -14,6 +14,7 @@ import { fetchWithAbort } from "../utils/fetchWithAbort";
 import Button from "../templates/Buttons/Button";
 import SettlementsSearchInput from "../components/SettlementsSearchInput";
 import { showNotification } from "../utils/helpers";
+import { ISettlements, ISuggestions } from "../types/types";
 
 const MakeTrips = () => {
   const [fromValue, setFromValue] = useState("");
@@ -22,29 +23,29 @@ const MakeTrips = () => {
   const [passengersNumber, setPassengersNumber] = useState("");
   const [price, setPrice] = useState("");
 
-  const [fromLon, setFromLon] = useState("");
-  const [fromLat, setFromLat] = useState("");
-  const [toLon, setToLon] = useState("");
-  const [toLat, setToLat] = useState("");
+  const [fromLon, setFromLon] = useState<number>();
+  const [fromLat, setFromLat] = useState<number>();
+  const [toLon, setToLon] = useState<number>();
+  const [toLat, setToLat] = useState<number>();
 
-  const [settlementsData, setSettlementsData] = useState([]);
-  const selectedSettlements = new Set();
+  const [settlementsData, setSettlementsData] = useState<ISettlements[]>([]);
+  const selectedSettlements = new Set<string>();
 
-  const abortControllerRef = useRef(null);
+  const abortControllerRef = useRef<AbortController>(null);
 
-  function setFromData(place) {
+  function setFromData(place: ISuggestions) {
     setFromLon(place.data.geo_lon);
     setFromLat(place.data.geo_lat);
     setFromValue(place.value);
   }
 
-  function setToData(place) {
+  function setToData(place: ISuggestions) {
     setToLon(place.data.geo_lon);
     setToLat(place.data.geo_lat);
     setToValue(place.value);
   }
 
-  async function createTrips(e) {
+  async function createTrips(e: FormEvent<HTMLFormElement>) {
     e.preventDefault();
 
     if (!fromLon || !fromLat || !toLon || !toLat) {
@@ -82,7 +83,8 @@ const MakeTrips = () => {
     abortControllerRef.current = null;
   }
 
-  async function toggleSettlement(e) {
+  async function toggleSettlement(e: MouseEvent) {
+    if (!e.target) return;
     const element = e.target.value;
     if (selectedSettlements.has(element)) {
       selectedSettlements.delete(element);
@@ -91,14 +93,14 @@ const MakeTrips = () => {
     }
   }
 
-  async function saveTrip(e) {
+  async function saveTrip(e: ChangeEvent) {
     e.preventDefault();
   }
 
   return (
     <div className="container">
       <h3>Создать новые поездки</h3>
-      <form onSubmit={createTrips}>
+      <form onSubmit={(e) => createTrips(e)}>
         <div className="">
           <label id={"from"}>Откуда:</label>
           <SettlementsSearchInput
@@ -157,16 +159,20 @@ const MakeTrips = () => {
           </ComponentHeader>
           <form method="POST" className="settlements">
             {settlementsData.map((settlement, idx) => (
-              <p key={idx} className="settlement" onClick={toggleSettlement}>
+              <p
+                key={idx}
+                className="settlement"
+                onClick={(e) => toggleSettlement(e)}
+              >
                 <input
                   type="checkbox"
-                  id={idx}
+                  id={`${idx}`}
                   value={settlement.lon + "," + settlement.lat}
                 />
-                <label htmlFor={idx}>
+                <label htmlFor={`${idx}`}>
                   <span className="settlement-name">{settlement.name}</span>,{" "}
                   <span className="settlement-type">
-                    {settlementTypes(settlement.type)}
+                    {settlementTypes[settlement.type]}
                   </span>
                 </label>
               </p>

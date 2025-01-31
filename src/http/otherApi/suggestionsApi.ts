@@ -1,4 +1,4 @@
-import { $host } from "..";
+import { $host, AxiosResponseData } from "..";
 import { ISuggestions } from "../../types/types";
 
 class SuggestionsApi {

@@ -11,7 +11,7 @@ import { fetchWithAbort } from "../utils/fetchWithAbort";
 
 const Logout = () => {
   const navigate = useNavigate();
-  const abortControllerRef = useRef(null);
+  const abortControllerRef = useRef<AbortController>(null);
 
   async function logout() {
     const { controller, signal } = createNewAbortController(abortControllerRef);

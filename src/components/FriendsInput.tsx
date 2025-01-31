@@ -4,12 +4,12 @@ import { findFriends, getAvatar, getFullName } from "../utils/helpers";
 import { avatarSizes } from "../utils/consts";
 import { observer } from "mobx-react";
 import bookingStore from "../store/bookingStore";
-import { IUser } from "../types/database";
+import { IUsers } from "../types/database";
 
 const FriendsInput = (props) => {
   const [value, setValue] = useState("");
   const [isActive, setIsActive] = useState(false);
-  const [showedArray, setShowedArray] = useState<IUser[]>(
+  const [showedArray, setShowedArray] = useState<IUsers[]>(
     bookingStore.passengersData
   );
   const [selectedUserId, setSelectedUserId] = useState<number | null>(null);

@@ -1,13 +1,15 @@
-export interface IUser {
+import { IUserGenders, IUserRoles } from "./types";
+
+export interface IUsers {
   id: number;
   vk_id: number;
-  role: "PASSENGER" | "DRIVER" | "ADMIN";
+  role: IUserRoles;
   name: string;
   surname: string;
   phones: string | null;
   private_phones?: string | null;
   avatar: string;
-  gender: "male" | "female" | null;
+  gender: IUserGenders;
   birthday: Date | null;
   rating: string; // float
   rating_count: number;

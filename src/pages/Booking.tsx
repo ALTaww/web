@@ -243,7 +243,7 @@ const Booking = () => {
                   id="passengers-number"
                   name="passengers-number"
                   value={bookingStore.passengersNumber}
-                  onChange={(e) => {
+                  onChange={(e: React.ChangeEvent<HTMLInputElement>) => {
                     const inputValue = parseInt(e.target.value, 10);
                     if (!inputValue) {
                       e.target.value = bookingStore.passengersNumber;

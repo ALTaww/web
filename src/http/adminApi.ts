@@ -1,4 +1,5 @@
 import { $adminHost } from ".";
+import { IReviews, ITrips, IUsers } from "../types/database";
 
 class AdminApi {
   getAllUserInfo = async (
@@ -6,11 +7,11 @@ class AdminApi {
     signal: AbortSignal
     // не полное типизирование
   ): Promise<{
-    userInfo: {};
-    trips: [];
+    userInfo: IUsers;
+    trips: ITrips[];
     bookedTrips: [];
-    friends: [];
-    reviews: [];
+    friends: IUsers[];
+    reviews: IReviews[];
   }> => {
     const { data } = await $adminHost.get(`/user/${userId}`, {
       signal,
@@ -22,14 +23,17 @@ class AdminApi {
     tripId: number | string,
     signal: AbortSignal
     // не полное типизирование
-  ): Promise<{ id: number }> => {
+  ): Promise<ITrips> => {
     const { data } = await $adminHost.get(`/trip/${tripId}`, {
       signal,
     });
     return data;
   };
 
-  getReviewById = async (reviewId: number | string, signal: AbortSignal) => {
+  getReviewById = async (
+    reviewId: number | string,
+    signal: AbortSignal
+  ): Promise<IReviews> => {
     const { data } = await $adminHost.get(`/review/${reviewId}`, {
       signal,
     });

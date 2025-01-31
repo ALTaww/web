@@ -11,13 +11,14 @@ import { fetchWithAbort } from "../utils/fetchWithAbort";
 import "../css/user-trips.css";
 import Button from "../templates/Buttons/Button";
 import { createNewAbortController } from "../utils/createNewAbortController";
+import { ITrips } from "../types/database";
 
 const UserTrips = () => {
   const navigate = useNavigate();
-  const [bookedTrips, setBookedTrips] = useState([]);
+  const [bookedTrips, setBookedTrips] = useState<ITrips[]>([]);
 
-  const [tripsAsPassenger, setTripsAsPassenger] = useState([]);
-  const [tripsAsDriver, setTripsAsDriver] = useState([]);
+  const [tripsAsPassenger, setTripsAsPassenger] = useState<ITrips[]>([]);
+  const [tripsAsDriver, setTripsAsDriver] = useState<ITrips[]>([]);
 
   const [futureTripsAsPassenger, setFutureTripsAsPassenger] = useState([]);
   const [pastTripsAsPassenger, setPastTripsAsPassenger] = useState([]);
@@ -30,7 +31,7 @@ const UserTrips = () => {
     timeTypes.future
   );
 
-  const abortControllerRef = useRef(null);
+  const abortControllerRef = useRef<AbortController>(null);
 
   useEffect(() => {
     const controler = new AbortController();
@@ -70,7 +71,7 @@ const UserTrips = () => {
     return () => controler.abort();
   }, [userStore.data.id, userStore.data.role]);
 
-  async function unbookTrip(tripId) {
+  async function unbookTrip(tripId: number) {
     const { controller, signal } = createNewAbortController(abortControllerRef);
     abortControllerRef.current = controller;
 

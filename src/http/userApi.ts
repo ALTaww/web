@@ -1,28 +1,36 @@
 import { $host, $authHost } from ".";
+import { IUsers } from "../types/database";
+import { IUserRoles, IVkConfig } from "../types/types";
 
 class UserApi {
-  deleteUser = async (id: number | string, signal: AbortSignal) => {
+  deleteUser = async (
+    id: number | string,
+    signal: AbortSignal
+  ): Promise<IUsers> => {
     const { data } = await $authHost.delete(`/user/${id}`, {
       signal,
     });
     return data;
   };
 
-  getUser = async (id: number | string, signal: AbortSignal) => {
+  getUser = async (
+    id: number | string,
+    signal: AbortSignal
+  ): Promise<IUsers> => {
     const { data } = await $host.get(`/user/${id}`, {
       signal,
     });
     return data;
   };
 
-  getUsers = async (signal: AbortSignal) => {
+  getUsers = async (signal: AbortSignal): Promise<IUsers> => {
     const { data } = await $authHost.get("/users", {
       signal,
     });
     return data;
   };
 
-  generateVkConfig = async (signal: AbortSignal) => {
+  generateVkConfig = async (signal: AbortSignal): Promise<IVkConfig> => {
     const { data } = await $host.get("/vk/config", {
       signal,
     });
@@ -35,7 +43,7 @@ class UserApi {
     device_id: string,
     code_verifier: string,
     signal: AbortSignal
-  ) => {
+  ): Promise<IUsers> => {
     const { data } = await $host.post(
       `/vk/create-or-login-user`,
       {
@@ -53,7 +61,10 @@ class UserApi {
     return data;
   };
 
-  getHttpOnlyCookie = async (name: string, signal: AbortSignal) => {
+  getHttpOnlyCookie = async (
+    name: string,
+    signal: AbortSignal
+  ): Promise<string> => {
     const { data } = await $host.get("/cookie/get/" + name, {
       withCredentials: true,
       signal,
@@ -64,7 +75,7 @@ class UserApi {
   setHttpOnlyCookie = async (
     name: string,
     value: string,
-    expiresMin: string,
+    expiresMin: number,
     signal: AbortSignal
   ) => {
     const { data } = await $host.post(
@@ -82,14 +93,14 @@ class UserApi {
     return data;
   };
 
-  getUserRole = async (signal: AbortSignal) => {
+  getUserRole = async (signal: AbortSignal): Promise<IUserRoles> => {
     const { data } = await $authHost.get("/get-user-role", {
       signal,
     });
     return data;
   };
 
-  getUserId = async (signal: AbortSignal) => {
+  getUserId = async (signal: AbortSignal): Promise<number> => {
     const { data } = await $authHost.get("/get-user-id", {
       signal,
     });
@@ -124,28 +135,28 @@ class UserApi {
   getFriendship = async (
     friendId: number | string,
     signal: AbortSignal
-  ): Promise<{ is_friend: boolean; is_request_sent: boolean }> => {
+  ): Promise<{ is_friends: boolean; is_request_sent: boolean }> => {
     const { data } = await $authHost.get("/friendship/" + friendId, {
       signal,
     });
     return data;
   };
 
-  getAcceptedFriends = async (signal: AbortSignal) => {
+  getAcceptedFriends = async (signal: AbortSignal): Promise<IUsers> => {
     const { data } = await $authHost.get("/get-accepted-friends", {
       signal,
     });
     return data;
   };
 
-  getSendedRequests = async (signal: AbortSignal) => {
+  getSendedRequests = async (signal: AbortSignal): Promise<IUsers> => {
     const { data } = await $authHost.get("/get-sended-requests", {
       signal,
     });
     return data;
   };
 
-  getSubscribers = async (signal: AbortSignal) => {
+  getSubscribers = async (signal: AbortSignal): Promise<IUsers> => {
     const { data } = await $authHost.get("/get-subscribers", {
       signal,
     });
@@ -155,7 +166,7 @@ class UserApi {
   getAcceptedFriendsByNameAndSurname = async (
     search: string,
     signal: AbortSignal
-  ) => {
+  ): Promise<IUsers> => {
     const { data } = await $authHost.get(
       "/get-accepted-friends-by-name-and-surname/" + search,
       {
@@ -165,7 +176,7 @@ class UserApi {
     return data;
   };
 
-  getRejectedRequests = async (signal: AbortSignal) => {
+  getRejectedRequests = async (signal: AbortSignal): Promise<IUsers> => {
     const { data } = await $authHost.get("/get-rejected-requests", {
       signal,
     });

@@ -20,7 +20,7 @@ class TripApi {
     price,
     seats,
     signal,
-  }: ICreate): Promise<ICreate> => {
+  }: ICreate): Promise<ITrips> => {
     const { data } = await $authHost.post(
       "/trip",
       {
@@ -41,7 +41,7 @@ class TripApi {
   deleteTrip = async (
     id: number | string,
     signal: AbortSignal
-  ): Promise<ICreate> => {
+  ): Promise<ITrips> => {
     const { data } = await $authHost.delete(`/trip/${id}`, {
       signal,
     });
@@ -51,7 +51,7 @@ class TripApi {
   getTrip = async (
     id: number | string,
     signal: AbortSignal
-  ): Promise<ICreate> => {
+  ): Promise<ITrips> => {
     const { data } = await $host.get(`/trip/${id}`, {
       signal,
     });
@@ -63,7 +63,7 @@ class TripApi {
     reverse = false,
     page: number | string,
     signal: AbortSignal
-  ): Promise<ICreate[]> => {
+  ): Promise<ITrips[]> => {
     const { data } = await $host.get(
       `/get-trips?limit=${limit}&page=${page}&reverse=${reverse}`,
       {
@@ -83,7 +83,7 @@ class TripApi {
   getTripsByUserId = async (
     userId: number | string,
     signal: AbortSignal
-  ): Promise<ICreate[]> => {
+  ): Promise<ITrips[]> => {
     const { data } = await $host.get(`/trips?userId=${userId}`, {
       signal,
     });
@@ -93,7 +93,7 @@ class TripApi {
   getTripsByDriverId = async (
     id: number | string,
     signal: AbortSignal
-  ): Promise<ICreate[]> => {
+  ): Promise<ITrips[]> => {
     const { data } = await $host.get(`/trips?driverId=${id}`, {
       signal,
     });
@@ -105,7 +105,7 @@ class TripApi {
     to: string,
     when: string,
     signal: AbortSignal
-  ): Promise<ICreate[]> => {
+  ): Promise<ITrips[]> => {
     const { data } = await $host.get(
       `/trips?from=${from}&to=${to}&when=${when}`,
       {
@@ -120,7 +120,7 @@ class TripApi {
     passengersIds: number[],
     signal: AbortSignal
     // не факт что это так
-  ): Promise<{ trips: ICreate }> => {
+  ): Promise<{ trips: ITrips }> => {
     const { data } = await $authHost.post(
       `/trip/book/${trip_id}`,
       {

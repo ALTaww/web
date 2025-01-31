@@ -1,8 +1,14 @@
-import React, { useEffect, useRef } from "react";
+import React, { FC, useEffect, useRef } from "react";
 import "./popup.css";
 
-const Popup = ({ text, x_center, y }) => {
-  const popupRef = useRef(null);
+interface IComponent {
+  text: string | React.ReactNode;
+  x_center: number;
+  y: number;
+}
+
+const Popup: FC<IComponent> = ({ text, x_center, y }) => {
+  const popupRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
     if (popupRef.current) {

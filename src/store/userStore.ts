@@ -1,9 +1,9 @@
 import { makeAutoObservable } from "mobx";
-import { IUser } from "../types/database";
+import { IUsers } from "../types/database";
 
 class UserStore {
   isAuth = false;
-  data: IUser = {
+  data: IUsers = {
     id: 0,
     vk_id: 0,
     role: "PASSENGER",

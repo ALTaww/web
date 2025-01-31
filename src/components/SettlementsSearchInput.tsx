@@ -1,44 +1,38 @@
-import React, { useRef, useState } from "react";
-import { debounce } from "../utils/helpers";
+import React, { ChangeEvent, FC, useRef, useState } from "react";
+import { debounce, debouncedGetSettlements } from "../utils/helpers";
 import { createNewAbortController } from "../utils/createNewAbortController";
 import suggestionsApi from "../http/otherApi/suggestionsApi";
 import { fetchWithAbort } from "../utils/fetchWithAbort";
 import SearchInput from "./SearchInput";
+import { ISuggestions } from "../types/types";
 
-const SettlementsSearchInput = ({
+interface IComponent {
+  nosuggestions?: boolean;
+  saveData: (place: ISuggestions) => void;
+  suggestions: ISuggestions[];
+}
+
+const SettlementsSearchInput: FC<IComponent> = ({
   nosuggestions,
   saveData,
   suggestions,
   ...props
 }) => {
   const [value, setValue] = useState("");
-  const [suggestionsArray, setSuggestionsArray] = useState([]);
+  const [suggestionsArray, setSuggestionsArray] = useState<ISuggestions[]>([]);
 
   const [isActive, setIsActive] = useState(false);
 
-  const abortControllerRef = useRef(null);
+  const abortControllerRef = useRef<AbortController>(null);
 
-  const debouncedGetSettlements = debounce(async (value) => {
-    const { controller, signal } = createNewAbortController(abortControllerRef);
-    abortControllerRef.current = controller;
-
-    if (!nosuggestions && value.length > 1) {
-      const data = await fetchWithAbort(
-        (signal) => suggestionsApi.getSettlements(value, signal),
-        signal
-      );
-      console.log(value, data);
-      abortControllerRef.current = null;
-
-      return data;
-    }
-  }, 500);
-
-  const changeInputValue = async (e) => {
+  const changeInputValue = async (e: ChangeEvent<HTMLInputElement>) => {
     setValue(e.target.value);
     try {
       if (e.target.value.length > 1 && isActive) {
-        const data = await debouncedGetSettlements(e.target.value);
+        const data = await debouncedGetSettlements(
+          e.target.value,
+          abortControllerRef
+        );
         console.log("data: ", data);
         setSuggestionsArray(data);
       }
@@ -47,13 +41,13 @@ const SettlementsSearchInput = ({
     }
   };
 
-  const setData = async (place) => {
+  const setData = async (place: ISuggestions) => {
     setValue(place.value);
     setSuggestionsArray([place]);
     saveData(place);
   };
 
-  const handleSelect = (place) => {
+  const handleSelect = (place: ISuggestions) => {
     saveData(place);
     setValue(place.value);
     setIsActive(false);

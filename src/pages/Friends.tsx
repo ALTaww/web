@@ -1,4 +1,10 @@
-import React, { Suspense, useEffect, useRef, useState } from "react";
+import React, {
+  ChangeEvent,
+  Suspense,
+  useEffect,
+  useRef,
+  useState,
+} from "react";
 import { friendsPages } from "../utils/consts";
 import FriendsList from "../components/FriendsList";
 import SearchInput from "../components/SearchInput";
@@ -8,9 +14,13 @@ import { findFriends } from "../utils/helpers";
 import userApi from "../http/userApi";
 import { fetchWithAbort } from "../utils/fetchWithAbort";
 import { createNewAbortController } from "../utils/createNewAbortController";
+import { IFriendsPages } from "../types/types";
+import { IUsers } from "../types/database";
 
 const Friends = () => {
-  const [friendsPage, setFriendsPage] = useState(friendsPages.accepted);
+  const [friendsPage, setFriendsPage] = useState<IFriendsPages>(
+    friendsPages.accepted
+  );
   const [acceptedFriends, setAcceptedFriends] = useState([]);
   const [sendedFriends, setSendedFriends] = useState([]);
   const [subs, setSubs] = useState([]);
@@ -24,17 +34,20 @@ const Friends = () => {
   const [isRejectedFriendsFetched, setIsRejectedFriendsFetched] =
     useState(false);
 
-  const [currentFriendsList, setCurrentFriendsList] = useState([]);
+  const [currentFriendsList, setCurrentFriendsList] = useState<IUsers[]>([]);
 
-  const abortControllerRef = useRef(null);
+  const abortControllerRef = useRef<AbortController>(null);
 
   useEffect(() => {
+    const controller = new AbortController();
+    const { signal } = controller;
     (async () => {
       try {
         if (!isAcceptedFriendsFetched) {
-          const friends = await userApi
-            .getAcceptedFriends()
-            .then((res) => res.data);
+          const friends = await fetchWithAbort(
+            (signal) => userApi.getAcceptedFriends(signal),
+            signal
+          ).then((res) => res.data);
           setAcceptedFriends(friends);
           setCurrentFriendsList(friends);
           setIsAcceptedFriendsFetched(true);
@@ -43,6 +56,8 @@ const Friends = () => {
         console.error(err);
       }
     })();
+
+    return () => controller.abort();
   }, []);
 
   async function setAcceptedActive() {
@@ -52,15 +67,19 @@ const Friends = () => {
   }
 
   async function getSendedFriends() {
+    const { controller, signal } = createNewAbortController(abortControllerRef);
+    abortControllerRef.current = controller;
+
     try {
       setFriendsPage(friendsPages.sended);
       setCurrentFriendsList(sendedFriends);
       setSearchQuery("");
 
       if (!isSendedFriendsFetched) {
-        const friends = await userApi
-          .getSendedRequests()
-          .then((res) => res.data);
+        const friends = await fetchWithAbort(
+          (signal) => userApi.getSendedRequests(signal),
+          signal
+        ).then((res) => res.data);
         setSendedFriends(friends);
         setIsSendedFriendsFetched(true);
       }
@@ -94,15 +113,19 @@ const Friends = () => {
   }
 
   async function getRejectedFriends() {
+    const { controller, signal } = createNewAbortController(abortControllerRef);
+    abortControllerRef.current = controller;
+
     try {
       setFriendsPage(friendsPages.rejected);
       setCurrentFriendsList(rejectedFriends);
       setSearchQuery("");
 
       if (!isRejectedFriendsFetched) {
-        const friends = await userApi
-          .getRejectedRequests()
-          .then((res) => res.data);
+        const friends = await fetchWithAbort(
+          (signal) => userApi.getRejectedRequests(signal),
+          signal
+        ).then((res) => res.data);
         setRejectedFriends(friends);
         setIsRejectedFriendsFetched(true);
       }
@@ -153,8 +176,8 @@ const Friends = () => {
         <SearchInput
           placeholder="Искать друзей"
           value={searchQuery}
-          onChange={(e) => setSearchQuery(e.target.value)}
-          onKeyDown={(e) => {
+          onChange={(e: ChangeEvent) => setSearchQuery(e.target.value)}
+          onKeyDown={(e: KeyboardEvent) => {
             if (e.key === "Enter") {
               searchFriends();
             }
@@ -205,7 +228,7 @@ const Friends = () => {
       <Suspense fallback={<Loading />}>
         <FriendsList
           friends={currentFriendsList}
-          is_friend={getCurrentFriendsListStatus()}
+          is_friend={!!getCurrentFriendsListStatus()}
         />
       </Suspense>
     </div>

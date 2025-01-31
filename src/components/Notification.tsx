@@ -1,13 +1,13 @@
-import React, { CSSProperties, FC } from "react";
+import React, { CSSProperties, FC, MouseEventHandler } from "react";
 import { notificationStatuses } from "../utils/consts";
 import "./notification.css";
 import { INotificationStatuses } from "../types/types";
 
 interface IComponent {
   status: INotificationStatuses;
-  message: string;
-  onClose: () => {};
-  style: CSSProperties;
+  message: string | React.ReactNode;
+  onClose: () => void;
+  style?: CSSProperties;
 }
 
 const Notification: FC<IComponent> = ({
