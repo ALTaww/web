@@ -1,5 +1,5 @@
 import React, { FC, useEffect, useRef } from "react";
-import "./popup.css";
+import "../css/popup.css";
 
 interface IComponent {
   text: string | React.ReactNode;
@@ -22,7 +22,7 @@ const Popup: FC<IComponent> = ({ text, x_center, y }) => {
   }, [popupRef, x_center, y]);
 
   return (
-    <div ref={popupRef} className="popup">
+    <div data-testid="popup" ref={popupRef} className="popup">
       {text}
       <div className="popup-arrow" />
     </div>

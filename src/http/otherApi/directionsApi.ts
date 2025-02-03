@@ -1,11 +1,11 @@
 import { $driverHost } from "..";
-import { ISettlements } from "../../types/types";
+import { IDirectionsGetRoute, ISettlements } from "../../types/types";
 
 class DirectionsApi {
   getRoute = async (
     points: number[][],
     signal: AbortSignal
-  ): Promise<{ polyline: string; time: Date; distance: string }> => {
+  ): Promise<IDirectionsGetRoute> => {
     const { data } = await $driverHost.post(
       "/directions",
       { points },

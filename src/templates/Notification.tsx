@@ -1,6 +1,6 @@
-import React, { CSSProperties, FC, MouseEventHandler } from "react";
+import React, { CSSProperties, FC } from "react";
 import { notificationStatuses } from "../utils/consts";
-import "./notification.css";
+import "../css/notification.css";
 import { INotificationStatuses } from "../types/types";
 
 interface IComponent {
@@ -17,7 +17,11 @@ const Notification: FC<IComponent> = ({
   style,
 }) => {
   return (
-    <div className={`notification ${status}`} style={style}>
+    <div
+      data-testid="notification"
+      className={`notification ${status}`}
+      style={style}
+    >
       {typeof message === "string" ? <span>{message}</span> : message}
       <div className="close" onClick={onClose}>
         x

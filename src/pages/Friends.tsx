@@ -7,24 +7,25 @@ import React, {
 } from "react";
 import { friendsPages } from "../utils/consts";
 import FriendsList from "../components/FriendsList";
-import SearchInput from "../components/SearchInput";
+import SearchInput from "../templates/SearchInput";
 import Loading from "../components/Loading";
-import "./friends.css";
+import "../css/friends.css";
 import { findFriends } from "../utils/helpers";
 import userApi from "../http/userApi";
 import { fetchWithAbort } from "../utils/fetchWithAbort";
 import { createNewAbortController } from "../utils/createNewAbortController";
 import { IFriendsPages } from "../types/types";
 import { IUsers } from "../types/database";
+import Button from "../templates/Buttons/Button";
 
 const Friends = () => {
   const [friendsPage, setFriendsPage] = useState<IFriendsPages>(
     friendsPages.accepted
   );
-  const [acceptedFriends, setAcceptedFriends] = useState([]);
-  const [sendedFriends, setSendedFriends] = useState([]);
-  const [subs, setSubs] = useState([]);
-  const [rejectedFriends, setRejectedFriends] = useState([]);
+  const [acceptedFriends, setAcceptedFriends] = useState<IUsers[]>([]);
+  const [sendedFriends, setSendedFriends] = useState<IUsers[]>([]);
+  const [subs, setSubs] = useState<IUsers[]>([]);
+  const [rejectedFriends, setRejectedFriends] = useState<IUsers[]>([]);
   const [searchQuery, setSearchQuery] = useState("");
 
   const [isAcceptedFriendsFetched, setIsAcceptedFriendsFetched] =
@@ -47,7 +48,7 @@ const Friends = () => {
           const friends = await fetchWithAbort(
             (signal) => userApi.getAcceptedFriends(signal),
             signal
-          ).then((res) => res.data);
+          );
           setAcceptedFriends(friends);
           setCurrentFriendsList(friends);
           setIsAcceptedFriendsFetched(true);
@@ -71,18 +72,18 @@ const Friends = () => {
     abortControllerRef.current = controller;
 
     try {
-      setFriendsPage(friendsPages.sended);
-      setCurrentFriendsList(sendedFriends);
-      setSearchQuery("");
-
       if (!isSendedFriendsFetched) {
         const friends = await fetchWithAbort(
           (signal) => userApi.getSendedRequests(signal),
           signal
-        ).then((res) => res.data);
+        );
         setSendedFriends(friends);
         setIsSendedFriendsFetched(true);
       }
+
+      setFriendsPage(friendsPages.sended);
+      setCurrentFriendsList(sendedFriends);
+      setSearchQuery("");
     } catch (err) {
       console.error(err);
     }
@@ -101,7 +102,7 @@ const Friends = () => {
         const subs = await fetchWithAbort(
           (signal) => userApi.getSubscribers(signal),
           signal
-        ).then((res) => res.data);
+        );
         setSubs(subs);
         setIsSubsFetched(true);
       }
@@ -125,7 +126,7 @@ const Friends = () => {
         const friends = await fetchWithAbort(
           (signal) => userApi.getRejectedRequests(signal),
           signal
-        ).then((res) => res.data);
+        );
         setRejectedFriends(friends);
         setIsRejectedFriendsFetched(true);
       }
@@ -183,9 +184,9 @@ const Friends = () => {
             }
           }}
         />
-        <button type="button" onClick={searchFriends}>
+        <Button type="button" onClick={searchFriends}>
           Искать
-        </button>
+        </Button>
       </div>
 
       <div className="navigation">
@@ -228,7 +229,7 @@ const Friends = () => {
       <Suspense fallback={<Loading />}>
         <FriendsList
           friends={currentFriendsList}
-          is_friend={!!getCurrentFriendsListStatus()}
+          is_friend={getCurrentFriendsListStatus()}
         />
       </Suspense>
     </div>

@@ -4,6 +4,7 @@ import Loading from "./Loading";
 import tripApi from "../http/tripApi";
 import { fetchWithAbort } from "../utils/fetchWithAbort";
 import { ITrips } from "../types/database";
+import ComponentContainer from "./ComponentContainer";
 
 const NewTrips = () => {
   const [lastTrips, setLastTrips] = useState<ITrips[]>([]);
@@ -16,7 +17,7 @@ const NewTrips = () => {
     (async () => {
       try {
         const response = await fetchWithAbort(
-          (signal) => tripApi.getLastTrips(3, signal),
+          (signal) => tripApi.getTrips(3, true, 1, signal),
           signal
         );
         response && setLastTrips(response);
@@ -34,12 +35,14 @@ const NewTrips = () => {
   }
 
   return (
-    <div className="new-trips">
-      <h2>Новые поездки</h2>
-      {lastTrips.map((trip) => (
-        <Trip key={trip.id} {...trip} />
-      ))}
-    </div>
+    <ComponentContainer>
+      <div className="new-trips">
+        <h2>Новые поездки</h2>
+        {lastTrips.map((trip) => (
+          <Trip key={trip.id} {...trip} />
+        ))}
+      </div>
+    </ComponentContainer>
   );
 };
 

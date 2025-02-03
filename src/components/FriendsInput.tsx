@@ -1,12 +1,18 @@
-import React, { Suspense, useState } from "react";
-import UserChecks from "./UserChecks";
+import React, { FC, Suspense, useState } from "react";
+import UserChecks from "../templates/UserChecks";
 import { findFriends, getAvatar, getFullName } from "../utils/helpers";
 import { avatarSizes } from "../utils/consts";
 import { observer } from "mobx-react";
 import bookingStore from "../store/bookingStore";
 import { IUsers } from "../types/database";
 
-const FriendsInput = (props) => {
+interface IComponent {
+  type?: string;
+  placeholder?: string;
+  required?: boolean;
+}
+
+const FriendsInput: FC<IComponent> = ({ type, placeholder, required }) => {
   const [value, setValue] = useState("");
   const [isActive, setIsActive] = useState(false);
   const [showedArray, setShowedArray] = useState<IUsers[]>(
@@ -23,8 +29,8 @@ const FriendsInput = (props) => {
   return (
     <div className="user-input">
       <input
-        type={props.type || "search"}
-        placeholder={props.placeholder || "Введите имя друга"}
+        type={type || "search"}
+        placeholder={placeholder || "Введите имя друга"}
         value={value}
         onChange={(e) => {
           setValue(e.target.value);
@@ -37,7 +43,7 @@ const FriendsInput = (props) => {
             searchFriends(value);
           }
         }}
-        required={props.required ? true : false}
+        required={required ? true : false}
         style={{
           borderColor: bookingStore.errors.includes(selectedUserId)
             ? "red"

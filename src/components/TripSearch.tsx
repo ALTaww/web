@@ -1,33 +1,18 @@
-import React, { FC, useRef, useState } from "react";
-import SearchInput from "./SearchInput";
+import React, { FC } from "react";
+import SearchInput from "../templates/SearchInput";
 import { useNavigate } from "react-router-dom";
 import { paths } from "../pages/paths";
-import {
-  debounce,
-  debouncedGetSettlements,
-  isDate,
-  showNotification,
-} from "../utils/helpers";
+import { isDate, showNotification } from "../utils/helpers";
 import { observer } from "mobx-react";
 import { notificationStatuses, notificationTimeouts } from "../utils/consts";
 import tripStore from "../store/tripStore";
-import suggestionsApi from "../http/otherApi/suggestionsApi";
-import { createNewAbortController } from "../utils/createNewAbortController";
-import { fetchWithAbort } from "../utils/fetchWithAbort";
 import "../css/trip-search.css";
 import { ISuggestions } from "../types/types";
+import SettlementsSearchInput from "./SettlementsSearchInput";
+import ComponentContainer from "./ComponentContainer";
 
-interface IComponent {
-  nosuggestions?: boolean;
-}
-
-const TripSearch: FC<IComponent> = ({ nosuggestions }) => {
-  const [fromSuggestions, setFromSuggestions] = useState<ISuggestions[]>([]);
-  const [toSuggestions, setToSuggestions] = useState<ISuggestions[]>([]);
-
+const TripSearch: FC = () => {
   const navigate = useNavigate();
-
-  const abortControllerRef = useRef<AbortController>(null);
 
   const searchTrip = () => {
     console.log(
@@ -46,50 +31,14 @@ const TripSearch: FC<IComponent> = ({ nosuggestions }) => {
       isDate(tripStore.when)
     ) {
       navigate(
-        `${paths.Searchresults}?from=${tripStore.from}&to=${tripStore.to}&when=${tripStore.when}`,
-        {
-          replace: true,
-        }
+        `${paths.Searchresults}?from=${tripStore.from}&to=${tripStore.to}&when=${tripStore.when}`
       );
     } else {
       showNotification(
         "Пожалуйста выберите один из предложенных населенных пунктов в списках, а также желаемую дату",
-        notificationTimeouts.normal,
+        notificationTimeouts.short,
         notificationStatuses.error
       );
-    }
-  };
-
-  const changeFromValue = async (e: React.ChangeEvent<HTMLInputElement>) => {
-    try {
-      tripStore.setFrom(e.target.value);
-      if (e.target.value.length > 1) {
-        const data = await debouncedGetSettlements(
-          e.target.value,
-          abortControllerRef
-        );
-        console.log("data: ", data);
-        setFromSuggestions(data);
-      }
-    } catch (err) {
-      console.error(err);
-    }
-  };
-
-  const changeToValue = async (e: React.ChangeEvent<HTMLInputElement>) => {
-    try {
-      tripStore.setTo(e.target.value);
-      if (e.target.value.length > 1) {
-        const data = await debouncedGetSettlements(
-          e.target.value,
-          abortControllerRef
-        );
-        console.log("data: ", data);
-
-        setToSuggestions(data);
-      }
-    } catch (err) {
-      console.error(err);
     }
   };
 
@@ -97,61 +46,54 @@ const TripSearch: FC<IComponent> = ({ nosuggestions }) => {
     tripStore.setFrom(place.value);
     tripStore.setFromLat(place.data.geo_lat);
     tripStore.setFromLon(place.data.geo_lon);
-    setFromSuggestions([place]);
   };
 
   const setToData = async (place: ISuggestions) => {
     tripStore.setTo(place.value);
     tripStore.setToLat(place.data.geo_lat);
     tripStore.setToLon(place.data.geo_lon);
-    setToSuggestions([place]);
   };
 
   return (
-    <div className="trip-search">
-      <p>Город / населенный пункт:</p>
+    <ComponentContainer>
+      <div className="trip-search">
+        <p>Город / населенный пункт:</p>
 
-      <div id="trip-search" className="trip-search-container">
-        <SearchInput
-          placeholder={"Откуда"}
-          id="direction-from"
-          aria-label="Введите начальный пункт направления"
-          value={tripStore.from}
-          suggestions={fromSuggestions}
-          onChange={changeFromValue}
-          func={{ setTripData: setFromData }}
-        />
-        <label className="fake" htmlFor="direction-from">
-          Откуда
-        </label>
-        <SearchInput
-          placeholder={"Куда"}
-          id="direction-to"
-          aria-label="Введите конечный пункт"
-          value={tripStore.to}
-          suggestions={toSuggestions}
-          onChange={changeToValue}
-          func={{ setTripData: setToData }}
-        />
-        <label className="fake" htmlFor="direction-to">
-          Куда
-        </label>
-        <SearchInput
-          type="date"
-          id="trip-when"
-          placeholder="Когда"
-          value={tripStore.when}
-          nosuggestions={true}
-          onChange={(e) => tripStore.setWhen(e.target.value)}
-        />
-        <label className="fake" htmlFor="trip-when">
-          Когда
-        </label>
-        <button onClick={searchTrip} className="find-trip">
-          Найти
-        </button>
+        <div id="trip-search" className="trip-search-container">
+          <SettlementsSearchInput
+            placeholder={"Откуда"}
+            id="direction-from"
+            aria-label="Введите начальный пункт направления"
+            saveData={setFromData}
+          />
+          <label className="fake" htmlFor="direction-from">
+            Откуда
+          </label>
+          <SettlementsSearchInput
+            placeholder={"Куда"}
+            id="direction-to"
+            aria-label="Введите конечный пункт"
+            saveData={setToData}
+          />
+          <label className="fake" htmlFor="direction-to">
+            Куда
+          </label>
+          <SearchInput
+            type="date"
+            id="trip-when"
+            placeholder="Когда"
+            value={tripStore.when}
+            onChange={(e) => tripStore.setWhen(e.target.value)}
+          />
+          <label className="fake" htmlFor="trip-when">
+            Когда
+          </label>
+          <button onClick={searchTrip} className="find-trip">
+            Найти
+          </button>
+        </div>
       </div>
-    </div>
+    </ComponentContainer>
   );
 };
 

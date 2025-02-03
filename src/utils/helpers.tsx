@@ -1,6 +1,6 @@
 import { ChangeEvent } from "react";
-import Notification from "../components/Notification";
-import Popup from "../components/Popup";
+import Notification from "../templates/Notification";
+import Popup from "../templates/Popup";
 import { IUsers } from "../types/database";
 import { notificationStatuses } from "./consts";
 import ReactDOM from "react-dom/client";
@@ -14,10 +14,10 @@ export function isDate(str: string) {
   return !isNaN(date.getTime());
 }
 
-export const getAvatar = (url: string, size: number) => {
-  if (typeof url !== "string" || typeof size !== "number") return null;
+export const getAvatar = (url: string, size: number): string => {
+  if (typeof url !== "string" || typeof size !== "number") return "";
   const index = url.indexOf("cs=") + 3;
-  if (index === 2) return null; // не найдено
+  if (index === 2) return ""; // не найдено
   const afterParams = url.indexOf("&", index);
   return url.slice(0, index) + `${size}x${size}` + url.slice(afterParams);
 };
@@ -32,8 +32,11 @@ export const normilizeDateWithHourAndMins = (date: Date | string) => {
   return date.toLocaleString("ru").slice(0, 17);
 };
 
-export const toggleActive = (event: ChangeEvent) => {
-  event.target?.closest(".active-handler")?.classList.toggle("active");
+export const toggleActive = (
+  event: React.MouseEvent<HTMLElement> | ChangeEvent
+) => {
+  if (!(event.target instanceof HTMLElement)) return;
+  event.target.closest(".active-handler")?.classList.toggle("active");
 };
 
 export const showNotification = (
@@ -68,15 +71,19 @@ export const showNotification = (
 };
 
 export const showPopup = (
-  event: MouseEvent | ChangeEvent,
-  text: string | HTMLElement
+  event:
+    | React.MouseEvent<HTMLElement>
+    | MouseEvent
+    | React.ChangeEvent<HTMLElement>,
+  text: string | React.ReactNode
 ) => {
-  if (!event.target) return;
+  if (!(event.target instanceof HTMLElement)) return;
+  const target = event.target;
   const popupElement = (
     <Popup
       text={text}
-      x_center={event.target.offsetLeft + event.target.offsetWidth / 2}
-      y={event.target.offsetTop}
+      x_center={target.offsetLeft + target.offsetWidth / 2}
+      y={target.offsetTop}
     />
   );
   const popupContainer = document.createElement("div");
@@ -84,7 +91,7 @@ export const showPopup = (
   const root = ReactDOM.createRoot(popupContainer);
   root.render(popupElement);
 
-  event.target.addEventListener("mouseleave", () => {
+  target.addEventListener("mouseleave", () => {
     root.unmount();
     popupContainer.remove();
   });

@@ -5,17 +5,19 @@ import {
   notificationStatuses,
   notificationTimeouts,
 } from "../utils/consts";
-import UserChecks from "./UserChecks";
+import UserChecks from "../templates/UserChecks";
 import { Link } from "react-router-dom";
 import { paths } from "../pages/paths";
 import userApi from "../http/userApi";
 import { fetchWithAbort } from "../utils/fetchWithAbort";
 import { createNewAbortController } from "../utils/createNewAbortController";
 import { IUsers } from "../types/database";
+import { AxiosError } from "axios";
+import Button from "../templates/Buttons/Button";
 
 interface IComponent {
   friends: IUsers[];
-  is_friend: boolean;
+  is_friend: boolean | null;
 }
 
 const FriendsList: FC<IComponent> = ({ friends = [], is_friend }) => {
@@ -23,20 +25,22 @@ const FriendsList: FC<IComponent> = ({ friends = [], is_friend }) => {
 
   const abortControllerRef = useRef<AbortController>(null);
 
-  const toggleFriend = async (event: Event) => {
+  const toggleFriend = async (event: React.MouseEvent<HTMLButtonElement>) => {
     const { controller, signal } = createNewAbortController(abortControllerRef);
     abortControllerRef.current = controller;
 
+    const button = event.target as HTMLButtonElement;
+
     try {
-      let res = {};
+      let res: { message: string } = { message: "" };
       if (isFriend) {
         res = await fetchWithAbort(
-          (signal) => userApi.deleteFriend(event.target?.id, signal),
+          (signal) => userApi.deleteFriend(button.id, signal),
           signal
         );
       } else {
         res = await fetchWithAbort(
-          (signal) => userApi.addFriend(event.target?.id, signal),
+          (signal) => userApi.addFriend(button.id, signal),
           signal
         );
       }
@@ -45,15 +49,25 @@ const FriendsList: FC<IComponent> = ({ friends = [], is_friend }) => {
       showNotification(res.message, notificationTimeouts.short);
     } catch (err) {
       console.error(err);
-      showNotification(
-        err.response?.data?.message || "Error occurred",
-        notificationTimeouts.normal,
-        notificationStatuses.error
-      );
+      if (err instanceof AxiosError) {
+        showNotification(
+          err.response?.data?.message || "Error occurred",
+          notificationTimeouts.short,
+          notificationStatuses.error
+        );
+      } else {
+        console.error(err);
+        showNotification(
+          "Unexpected error occurred",
+          notificationTimeouts.short,
+          notificationStatuses.error
+        );
+      }
     } finally {
       abortControllerRef.current = null;
     }
   };
+
   return (
     <div className="friends-list">
       {friends.length < 1 && <p>Совпадений нет</p>}
@@ -74,9 +88,9 @@ const FriendsList: FC<IComponent> = ({ friends = [], is_friend }) => {
               />
             </Link>
             {typeof isFriend === "boolean" && (
-              <button type="button" onClick={toggleFriend} id={friend.id}>
+              <Button type="button" onClick={toggleFriend} id={`${friend.id}`}>
                 {isFriend ? "Удалить из друзей" : "Добавить в друзья"}
-              </button>
+              </Button>
             )}
           </div>
         ))}

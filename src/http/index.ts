@@ -2,6 +2,7 @@ import axios, { AxiosInstance } from "axios";
 import { showNotification } from "../utils/helpers";
 import { notificationStatuses, notificationTimeouts } from "../utils/consts";
 import userApi from "./userApi";
+import { response } from "express";
 
 /**
  * Обобщенный тип для ответа Axios, гарантирует, что поле `data` всегда есть.
@@ -34,6 +35,11 @@ const createAxiosInstance = (
     },
     (error) => Promise.reject(error)
   );
+
+  instance.interceptors.response.use((response) => {
+    console.log(response.config.url, response.data);
+    return response;
+  });
 
   // Перехватчик ответов
   if (withAuth) {

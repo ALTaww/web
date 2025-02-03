@@ -1,5 +1,5 @@
 import React, { ChangeEvent, FormEvent, useRef, useState } from "react";
-import SearchInput from "../components/SearchInput";
+import SearchInput from "../templates/SearchInput";
 
 import { decode } from "@googlemaps/polyline-codec";
 import {
@@ -83,9 +83,10 @@ const MakeTrips = () => {
     abortControllerRef.current = null;
   }
 
-  async function toggleSettlement(e: MouseEvent) {
+  async function toggleSettlement(e: React.MouseEvent) {
     if (!e.target) return;
-    const element = e.target.value;
+    const input = e.target as HTMLInputElement;
+    const element = input.value;
     if (selectedSettlements.has(element)) {
       selectedSettlements.delete(element);
     } else {
@@ -93,7 +94,7 @@ const MakeTrips = () => {
     }
   }
 
-  async function saveTrip(e: ChangeEvent) {
+  async function saveTrip(e: React.FormEvent<HTMLFormElement>) {
     e.preventDefault();
   }
 
@@ -123,7 +124,6 @@ const MakeTrips = () => {
             id={"when"}
             type="date"
             placeholder="Когда"
-            nosuggestions={true}
             value={whenValue}
             onChange={(e) => setWhenValue(e.target.value)}
           />
@@ -133,7 +133,6 @@ const MakeTrips = () => {
           <SearchInput
             id={"seats"}
             type="number"
-            nosuggestions={true}
             value={passengersNumber}
             onChange={(e) => setPassengersNumber(e.target.value)}
           />
@@ -143,7 +142,6 @@ const MakeTrips = () => {
           <SearchInput
             id={"price"}
             type="number"
-            nosuggestions={true}
             value={price}
             onChange={(e) => setPrice(e.target.value)}
           />
@@ -157,7 +155,7 @@ const MakeTrips = () => {
           <ComponentHeader>
             Выберите населенные пункты из которых готовы забрать пассажиров
           </ComponentHeader>
-          <form method="POST" className="settlements">
+          <form method="POST" className="settlements" onSubmit={saveTrip}>
             {settlementsData.map((settlement, idx) => (
               <p
                 key={idx}
@@ -177,9 +175,7 @@ const MakeTrips = () => {
                 </label>
               </p>
             ))}
-            <Button type="submit" onClick={saveTrip}>
-              Создать поездку
-            </Button>
+            <Button type="submit">Создать поездку</Button>
           </form>
         </div>
       )}

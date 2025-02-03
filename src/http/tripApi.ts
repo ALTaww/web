@@ -1,5 +1,5 @@
 import { $host, $authHost } from ".";
-import { ITrips } from "../types/database";
+import { IBookedTrips, ITrips } from "../types/database";
 
 interface ICreate extends ITrips {
   // driver_id: number;
@@ -73,13 +73,6 @@ class TripApi {
     return data;
   };
 
-  getLastTrips = async (limit = 3, signal: AbortSignal): Promise<ITrips[]> => {
-    const { data } = await $host.get(`/trips?reverse=true&limit=${limit}`, {
-      signal,
-    });
-    return data;
-  };
-
   getTripsByUserId = async (
     userId: number | string,
     signal: AbortSignal
@@ -119,8 +112,7 @@ class TripApi {
     trip_id: number | string,
     passengersIds: number[],
     signal: AbortSignal
-    // не факт что это так
-  ): Promise<{ trips: ITrips }> => {
+  ): Promise<IBookedTrips[]> => {
     const { data } = await $authHost.post(
       `/trip/book/${trip_id}`,
       {
@@ -136,8 +128,7 @@ class TripApi {
   unbookTrip = async (
     trip_id: number | string,
     signal: AbortSignal
-    // не полное типизирование
-  ): Promise<{ id: number; trip_id: number; booker_id: number }> => {
+  ): Promise<IBookedTrips[]> => {
     const { data } = await $authHost.post(
       `/trip/unbook/${trip_id}`,
       {},

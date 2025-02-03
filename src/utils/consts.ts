@@ -1,7 +1,6 @@
 import bookingStore from "../store/bookingStore";
 import tripStore from "../store/tripStore";
 import userStore from "../store/userStore";
-import { ISettlementsTypes } from "../types/types";
 
 export const userRoles = {
   passenger: "PASSENGER",

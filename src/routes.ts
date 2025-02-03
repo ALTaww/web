@@ -13,7 +13,12 @@ import UserTrips from "./pages/UserTrips";
 import MakeTrips from "./pages/MakeTrips";
 import Trips from "./pages/Trips";
 
-export const publicRoutes = [
+interface IComponent {
+  path: string;
+  Component: () => React.JSX.Element;
+}
+
+export const publicRoutes: IComponent[] = [
   {
     path: paths.Home,
     Component: Home,
@@ -74,8 +79,8 @@ export const publicRoutes = [
   },
 ];
 
-export const passengerRoutes = [];
+export const passengerRoutes: IComponent[] = [];
 
-export const driverRoutes = [...passengerRoutes];
+export const driverRoutes: IComponent[] = [...passengerRoutes];
 
-export const adminRoutes = [...passengerRoutes, ...driverRoutes];
+export const adminRoutes: IComponent[] = [...passengerRoutes, ...driverRoutes];

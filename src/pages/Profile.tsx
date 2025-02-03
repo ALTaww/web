@@ -1,6 +1,6 @@
 import React, { useContext, useEffect, useRef, useState } from "react";
 import { Link, useParams } from "react-router-dom";
-import "./profile.css";
+import "../css/profile.css";
 
 import Loading from "../components/Loading";
 import {
@@ -19,7 +19,7 @@ import {
   popupTexts,
   vkProfileSrc,
 } from "../utils/consts";
-import UserChecks from "../components/UserChecks";
+import UserChecks from "../templates/UserChecks";
 import vk_image from "../assets/img/vk.png";
 import heart_svg from "../assets/svg/heart.svg";
 import { Context } from "..";
@@ -92,7 +92,7 @@ const Profile = () => {
     name,
     surname,
     vk_id,
-    phone,
+    phones,
     avatar,
     role,
     birthday,
@@ -187,7 +187,8 @@ const Profile = () => {
             >
               Вконтакте
             </a>
-            {phone && <span className="phone-number">{phone}</span>}
+            {/* нужно доработать */}
+            {phones && <span className="phone-number">{phones}</span>}
           </div>
         </div>
         <div className="profile-info">

@@ -1,6 +1,11 @@
 import { $host, $authHost } from ".";
 import { IUsers } from "../types/database";
-import { IUserRoles, IVkConfig } from "../types/types";
+import {
+  IFriendship,
+  IMessageResponse,
+  IUserRoles,
+  IVkConfig,
+} from "../types/types";
 
 class UserApi {
   deleteUser = async (
@@ -69,7 +74,7 @@ class UserApi {
       withCredentials: true,
       signal,
     });
-    return data.value;
+    return data;
   };
 
   setHttpOnlyCookie = async (
@@ -77,7 +82,7 @@ class UserApi {
     value: string,
     expiresMin: number,
     signal: AbortSignal
-  ) => {
+  ): Promise<{ name: string; value: string }> => {
     const { data } = await $host.post(
       "/cookie/set",
       {
@@ -104,17 +109,20 @@ class UserApi {
     const { data } = await $authHost.get("/get-user-id", {
       signal,
     });
-    return data.id;
+    return data;
   };
 
-  refreshTokens = async (signal: AbortSignal) => {
+  refreshTokens = async (signal: AbortSignal): Promise<{ message: "OK" }> => {
     const { data } = await $authHost.post("/refresh", {
       signal,
     });
     return data;
   };
 
-  addFriend = async (friendId: number | string, signal: AbortSignal) => {
+  addFriend = async (
+    friendId: number | string,
+    signal: AbortSignal
+  ): Promise<IMessageResponse> => {
     const { data } = await $authHost.post(
       "/add-friend",
       { friendId },
@@ -125,7 +133,10 @@ class UserApi {
     return data;
   };
 
-  deleteFriend = async (friendId: number | string, signal: AbortSignal) => {
+  deleteFriend = async (
+    friendId: number | string,
+    signal: AbortSignal
+  ): Promise<IMessageResponse> => {
     const { data } = await $authHost.delete("/delete-friend/" + friendId, {
       signal,
     });
@@ -135,28 +146,28 @@ class UserApi {
   getFriendship = async (
     friendId: number | string,
     signal: AbortSignal
-  ): Promise<{ is_friends: boolean; is_request_sent: boolean }> => {
+  ): Promise<IFriendship> => {
     const { data } = await $authHost.get("/friendship/" + friendId, {
       signal,
     });
     return data;
   };
 
-  getAcceptedFriends = async (signal: AbortSignal): Promise<IUsers> => {
+  getAcceptedFriends = async (signal: AbortSignal): Promise<IUsers[]> => {
     const { data } = await $authHost.get("/get-accepted-friends", {
       signal,
     });
     return data;
   };
 
-  getSendedRequests = async (signal: AbortSignal): Promise<IUsers> => {
+  getSendedRequests = async (signal: AbortSignal): Promise<IUsers[]> => {
     const { data } = await $authHost.get("/get-sended-requests", {
       signal,
     });
     return data;
   };
 
-  getSubscribers = async (signal: AbortSignal): Promise<IUsers> => {
+  getSubscribers = async (signal: AbortSignal): Promise<IUsers[]> => {
     const { data } = await $authHost.get("/get-subscribers", {
       signal,
     });
@@ -166,7 +177,7 @@ class UserApi {
   getAcceptedFriendsByNameAndSurname = async (
     search: string,
     signal: AbortSignal
-  ): Promise<IUsers> => {
+  ): Promise<IUsers[]> => {
     const { data } = await $authHost.get(
       "/get-accepted-friends-by-name-and-surname/" + search,
       {
@@ -176,14 +187,16 @@ class UserApi {
     return data;
   };
 
-  getRejectedRequests = async (signal: AbortSignal): Promise<IUsers> => {
+  getRejectedRequests = async (signal: AbortSignal): Promise<IUsers[]> => {
     const { data } = await $authHost.get("/get-rejected-requests", {
       signal,
     });
     return data;
   };
 
-  logoutFromAccount = async (signal: AbortSignal) => {
+  logoutFromAccount = async (
+    signal: AbortSignal
+  ): Promise<{ message: "OK" }> => {
     const { data } = await $authHost.post("/logout", {
       signal,
     });

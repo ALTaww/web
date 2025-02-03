@@ -1,7 +1,7 @@
 import React, { useEffect, useRef } from "react";
 import { Link } from "react-router-dom";
 import { paths } from "../pages/paths";
-import { addActive, getAvatar, toggleActive } from "../utils/helpers";
+import { getAvatar, toggleActive } from "../utils/helpers";
 import { avatarSizes } from "../utils/consts";
 import "./header.css";
 import profileImage from "../assets/img/icons/profile.png";
@@ -14,7 +14,11 @@ const Header = () => {
 
   useEffect(() => {
     function func(e: Event) {
-      if (menuRef.current && !menuRef.current.contains(e.target)) {
+      if (
+        menuRef.current &&
+        e.target instanceof Node &&
+        !menuRef.current.contains(e.target)
+      ) {
         menuRef.current.classList.remove("active");
       }
     }

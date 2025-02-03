@@ -1,15 +1,12 @@
-import React, { ChangeEvent, FC, useRef, useState } from "react";
-import { debounce, debouncedGetSettlements } from "../utils/helpers";
-import { createNewAbortController } from "../utils/createNewAbortController";
-import suggestionsApi from "../http/otherApi/suggestionsApi";
-import { fetchWithAbort } from "../utils/fetchWithAbort";
-import SearchInput from "./SearchInput";
+import React, { ChangeEvent, FC, useEffect, useRef, useState } from "react";
+import { debouncedGetSettlements } from "../utils/helpers";
+import SearchInput from "../templates/SearchInput";
 import { ISuggestions } from "../types/types";
 
-interface IComponent {
+interface IComponent extends React.InputHTMLAttributes<HTMLInputElement> {
   nosuggestions?: boolean;
   saveData: (place: ISuggestions) => void;
-  suggestions: ISuggestions[];
+  suggestions?: ISuggestions[];
 }
 
 const SettlementsSearchInput: FC<IComponent> = ({
@@ -21,6 +18,10 @@ const SettlementsSearchInput: FC<IComponent> = ({
   const [value, setValue] = useState("");
   const [suggestionsArray, setSuggestionsArray] = useState<ISuggestions[]>([]);
 
+  useEffect(() => {
+    setSuggestionsArray(suggestions || []);
+  }, [suggestions]);
+
   const [isActive, setIsActive] = useState(false);
 
   const abortControllerRef = useRef<AbortController>(null);
@@ -28,7 +29,7 @@ const SettlementsSearchInput: FC<IComponent> = ({
   const changeInputValue = async (e: ChangeEvent<HTMLInputElement>) => {
     setValue(e.target.value);
     try {
-      if (e.target.value.length > 1 && isActive) {
+      if (e.target.value.length > 1 && isActive && !nosuggestions) {
         const data = await debouncedGetSettlements(
           e.target.value,
           abortControllerRef
@@ -41,12 +42,6 @@ const SettlementsSearchInput: FC<IComponent> = ({
     }
   };
 
-  const setData = async (place: ISuggestions) => {
-    setValue(place.value);
-    setSuggestionsArray([place]);
-    saveData(place);
-  };
-
   const handleSelect = (place: ISuggestions) => {
     saveData(place);
     setValue(place.value);
@@ -56,15 +51,15 @@ const SettlementsSearchInput: FC<IComponent> = ({
   return (
     <div className="search-input-container">
       <SearchInput
+        data-testid="search-input"
         value={value}
-        suggestions={suggestions}
         onChange={changeInputValue}
         onFocus={() => setIsActive(true)}
         onBlur={() => setIsActive(false)}
         {...props}
       />
       <div className="suggestions-wrapper">
-        {isActive && !nosuggestions && (
+        {isActive && !nosuggestions && value.length > 1 && (
           <div className="search-suggestions">
             {suggestionsArray.map((suggestion, index) => (
               <div

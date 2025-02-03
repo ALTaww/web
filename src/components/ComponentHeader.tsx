@@ -1,8 +1,15 @@
-import React from "react";
+import React, { FC } from "react";
 
-const ComponentHeader = (props) => {
+interface IComponent extends React.HTMLAttributes<HTMLDivElement> {
+  className?: string;
+}
+
+const ComponentHeader: FC<IComponent> = ({ className, ...props }) => {
   return (
-    <h3 {...props} className={"component-header " + props.className}>
+    <h3
+      className={"component-header" + className ? " " + className : ""}
+      {...props}
+    >
       {props.children}
     </h3>
   );

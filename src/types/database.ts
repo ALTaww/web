@@ -7,7 +7,7 @@ export interface IUsers {
   name: string;
   surname: string;
   phones: string | null;
-  private_phones?: string | null;
+  private_phones: string | null;
   avatar: string;
   gender: IUserGenders;
   birthday: Date | null;
@@ -35,4 +35,18 @@ export interface IReviews {
   driver_id: number;
   rate: number; // 1-5
   text: string;
+}
+
+export interface IBookedTrips {
+  id: number;
+  user_id: number;
+  trip_id: number;
+  time_booked: Date;
+  booker_id: number;
+}
+
+export interface IFriends {
+  user_id: number;
+  friend_id: number;
+  request_accepted: boolean;
 }

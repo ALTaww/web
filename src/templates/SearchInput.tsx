@@ -1,7 +1,7 @@
 import React, { FC, useState } from "react";
 import "../css/search-input.css";
 
-interface IComponent {
+interface IComponent extends React.InputHTMLAttributes<HTMLInputElement> {
   className?: string;
 }
 
@@ -12,10 +12,13 @@ const SearchInput: FC<IComponent> = ({ className, ...props }) => {
     <input
       type={"search"}
       placeholder={""}
-      className={className + " search-input"}
+      className={(className ? className + " " : "") + "search-input"}
       required
       value={inputValue}
-      onChange={(e) => setInputValue(e.target.value)}
+      onChange={(e) => {
+        setInputValue(e.target.value);
+        props.onChange?.(e);
+      }}
       {...props}
     />
   );

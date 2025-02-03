@@ -1,26 +1,27 @@
 import React, { useEffect, useRef, useState } from "react";
-import SearchInput from "../../components/SearchInput";
+import SearchInput from "../../templates/SearchInput";
 import adminApi from "../../http/adminApi";
 import { pageNames } from "../pageNames";
 import AdminInfoPanel from "../../components/admin/AdminInfoPanel";
 import { createNewAbortController } from "../../utils/createNewAbortController";
 import { fetchWithAbort } from "../../utils/fetchWithAbort";
+import { IReviews, ITrips, IUsers } from "../../types/database";
 
 const Admin = () => {
   const [userInputValue, setUserInputValue] = useState("");
-  const [userInfo, setUserInfo] = useState({});
+  const [userInfo, setUserInfo] = useState<IUsers>({});
   const [userFriendsInfo, setUserFriendsInfo] = useState({});
   const [userTripsInfo, setUserTripsInfo] = useState({});
   const [userReviewsInfo, setUserReviewsInfo] = useState({});
   const [userBookedTripsInfo, setUserBookedTripsInfo] = useState({});
 
   const [tripInputValue, setTripInputValue] = useState("");
-  const [tripInfo, setTripInfo] = useState({});
+  const [tripInfo, setTripInfo] = useState<ITrips>({});
 
   const [reviewInputValue, setReviewInputValue] = useState("");
-  const [reviewInfo, setReviewInfo] = useState({});
+  const [reviewInfo, setReviewInfo] = useState<IReviews>({});
 
-  const abortControllerRef = useRef(null);
+  const abortControllerRef = useRef<AbortController>(null);
 
   async function getUserInfo() {
     const { controller, signal } = createNewAbortController(abortControllerRef);
